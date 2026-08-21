@@ -1,26 +1,349 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+/* ==========================================================================
+   AKD Hospitality - Brand theme
+   All-blue corporate palette: deep navy, mid accent blue, light sky blue
+   ========================================================================== */
+@theme inline {
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-dark: var(--brand-navy-dark);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-sky: var(--brand-sky);
+  --color-brand-surface: var(--brand-surface);
+}
+
+:root {
+  --brand-navy: #14375c;
+  --brand-navy-dark: #0c2340;
+  --brand-accent: #1f6fb2;
+  --brand-sky: #7fb2e0;
+  --brand-surface: #f4f7fa;
+
+  /* Map shadcn primitives onto the brand palette */
+  --primary: #14375c;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f7fa;
+  --secondary-foreground: #14375c;
+  --accent: #e8f0f6;
+  --accent-foreground: #14375c;
+  --muted: #f4f7fa;
+  --muted-foreground: #5b6b7c;
+  --border: #dde5ec;
+  --input: #dde5ec;
+  --ring: #1f6fb2;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --brand-navy: #7fa8d0;
+  --brand-navy-dark: #0c2340;
+  --brand-accent: #58a6e0;
+  --brand-sky: #a8cdec;
+  --brand-surface: #16202b;
+
+  --primary: #7fa8d0;
+  --primary-foreground: #0c2340;
+  --secondary: #16202b;
+  --secondary-foreground: #e8f0f6;
+  --accent: #1c2836;
+  --accent-foreground: #e8f0f6;
+  --muted: #16202b;
+  --muted-foreground: #9aa9b8;
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: #58a6e0;
+}
+
+/* --------------------------------------------------------------------------
+   AOS safety net.
+   The AOS stylesheet hides every [data-aos] element until it animates in. The
+   .aos-ready class is added to <html> by AosProvider immediately before AOS
+   starts, so if the script never runs - or the visitor prefers reduced motion,
+   in which case AOS is skipped - the content simply stays visible.
+   -------------------------------------------------------------------------- */
+html:not(.aos-ready) [data-aos] {
+  opacity: 1 !important;
+  transform: none !important;
+  visibility: visible !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* --------------------------------------------------------------------------
+   Smooth disclosure for the director profiles.
+
+   A native <details> snaps open, which reads as a flicker. These rules animate
+   the height instead: `interpolate-size` lets `height: auto` be transitioned,
+   and `transition-behavior: allow-discrete` carries `content-visibility`
+   through the transition so the panel is not hidden mid-animation.
+
+   Progressive enhancement - browsers without ::details-content support simply
+   keep the instant open, which still works.
+   -------------------------------------------------------------------------- */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+details.disclosure::details-content {
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    height 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease,
+    content-visibility 320ms;
+  transition-behavior: allow-discrete;
+}
+
+details.disclosure[open]::details-content {
+  height: auto;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  details.disclosure::details-content,
+  details.disclosure[open]::details-content {
+    transition: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Card hover.
+
+   The hover on every card used to snap rather than ease, and the reason was a
+   cascade conflict, not a missing transition. AOS declares
+
+       transition-property: opacity, transform
+
+   on each [data-aos] element through a doubled attribute selector, which
+   outranks a single Tailwind utility class. Every card that both animates on
+   scroll and reacts to hover therefore resolved to `opacity, transform` and
+   lost its hover transition entirely - the border colour and shadow changed
+   in one frame.
+
+   This class owns the whole hover treatment so the two systems stop competing:
+
+   * The selector is tripled so it beats AOS's own attribute selectors.
+   * Per-property durations keep the hover quick (320ms) while leaving the AOS
+     entrance at its configured 700ms, so both feel right on one element.
+   * The resting state is an explicit fully transparent shadow with the same
+     geometry as the hover shadow, so the browser interpolates a plain colour
+     ramp instead of having to grow a shadow out of `none`.
+   * Nothing here moves the element. A hover lift shifts the hit box out from
+     under the cursor at the edges, which makes hover toggle on and off.
+   -------------------------------------------------------------------------- */
+.card-hover.card-hover.card-hover {
+  box-shadow: 0 18px 40px -12px rgb(20 55 92 / 0);
+  transition-property: box-shadow, border-color, opacity, transform;
+  transition-duration: 320ms, 320ms, 700ms, 700ms;
+  transition-timing-function:
+    cubic-bezier(0.22, 0.61, 0.36, 1),
+    cubic-bezier(0.22, 0.61, 0.36, 1),
+    cubic-bezier(0.215, 0.61, 0.355, 1),
+    cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.card-hover.card-hover.card-hover:hover {
+  border-color: color-mix(in oklab, var(--brand-accent) 50%, transparent);
+  box-shadow: 0 18px 40px -12px rgb(20 55 92 / 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-hover.card-hover.card-hover {
+    transition-duration: 0s;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Modal dialog.
+
+   Native <dialog> rather than a JS modal library: it gives focus trapping,
+   Escape to close and inert background for free, and there is nothing to load.
+
+   display and overlay are discrete properties, so they need
+   `transition-behavior: allow-discrete` plus a @starting-style block to get an
+   entry animation - without the starting style the dialog would appear at its
+   final values and only the exit would animate.
+   -------------------------------------------------------------------------- */
+dialog.modal {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition:
+    opacity 240ms ease,
+    transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    overlay 240ms allow-discrete,
+    display 240ms allow-discrete;
+}
+
+dialog.modal[open] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@starting-style {
+  dialog.modal[open] {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+dialog.modal::backdrop {
+  background-color: rgb(12 35 64 / 0);
+  transition:
+    background-color 240ms ease,
+    overlay 240ms allow-discrete,
+    display 240ms allow-discrete;
+}
+
+dialog.modal[open]::backdrop {
+  background-color: rgb(12 35 64 / 0.55);
+}
+
+@starting-style {
+  dialog.modal[open]::backdrop {
+    background-color: rgb(12 35 64 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.modal,
+  dialog.modal[open],
+  dialog.modal::backdrop,
+  dialog.modal[open]::backdrop {
+    transition: none;
+  }
 }
