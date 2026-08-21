@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AKD Hospitality Limited — corporate website
 
-## Getting Started
+Corporate website for **AKD Hospitality Limited** (Pakistan Stock Exchange: `AKDHL`),
+incorporated 1936, with a mandate across hospitality, motels and tourism.
 
-First, run the development server:
+Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4 · shadcn/ui
+
+---
+
+## Running it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then copy `.env.example` to `.env.local` and fill it in. Every variable is
+documented in that file; none of them are secret.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build      # production build
+npx tsc --noEmit   # type check
+npx eslint src     # lint
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Pages
 
-## Learn More
+| Route | What it carries |
+| --- | --- |
+| `/` | Hero, overview, milestones, investor panel |
+| `/about` | History, vision and mission, ESG framework, Chairperson's review |
+| `/governance` | Board, officers, four committees, risk diagrams, shareholding documents |
+| `/investors` | FY2025 snapshot, six-year record, shareholding pattern, 73 filings |
+| `/media` | Latest AGM and corporate briefing, 2021 corporate actions, meeting record, shareholder services, 23 filings |
+| `/contact` | Enquiry routing, company details, map, contact form |
+| `/terms-of-use`, `/disclaimer` | Legal, with in-page contents and per-clause anchors |
+| `/sitemap` | Human-readable site index |
 
-To learn more about Next.js, take a look at the following resources:
+Plus `not-found.tsx`, `error.tsx`, `robots.ts`, `sitemap.ts` and a generated
+Open Graph image.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How content is handled
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Everything published on this site is taken from the Company's own filings and
+cited to a page. Two rules held throughout:
 
-## Deploy on Vercel
+**Nothing is invented.** There is no corporate values list, because the Company
+publishes none — the real four-pillar ESG framework is used instead. There is no
+careers section, because the FY2025 annual report records four employees and no
+vacancies. Named directors have initials avatars, not stock portraits: putting a
+stranger's face beside a real person's name misrepresents them.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Financial figures appear in one place only.** They live on `/investors`, under
+the auditor's Material Uncertainty Relating to Going Concern notice. Showing a
+profit and a rising asset base without that context would misrepresent the
+Company's position, so the notice is published above the numbers, not after them.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Data files carry their sources in comments — see `src/data/financials.ts`,
+`src/data/governance.ts` and `src/data/media-notices.ts`.
+
+## The document archive
+
+`public/documents/` holds the Company's full published archive: **110 filings,
+145.9 MB**, compressed from 293.8 MB with no document lost and every page count
+verified. Text-bearing PDFs keep their text layer; only scans were re-rendered.
+
+These are served with immutable cache headers (see `next.config.ts`) because a
+filed notice never changes — a revision arrives as a new file with a new name.
+
+If the static payload ever needs to move off the deployment, set
+`NEXT_PUBLIC_DOCS_BASE_URL` to blob or object storage. No code changes needed.
+
+## Deployment notes
+
+**Canonical host** is `https://akdhospitality.com` — apex, no `www`. It is
+derived from one value in `src/lib/site.ts` and feeds every canonical link,
+Open Graph URL, sitemap entry and robots directive.
+
+Point `www.akdhospitality.com` at a **301 redirect to the apex**. Letting both
+hosts resolve splits ranking signals between two URLs for the same pages.
+
+**Legacy URLs.** `next.config.ts` redirects the old ASP.NET paths. This matters:
+`http://akdhospitality.com/Investors.aspx` is printed inside four filings,
+including the FY2025 Notice of Annual General Meeting that went to every
+shareholder on the register. Those visitors must not land on a 404.
+
+**Contact form.** Set `NEXT_PUBLIC_WEB3FORMS_KEY` to deliver enquiries to
+`info@akdhospitality.com`. Without it the form still renders and validates, but
+submitting shows the Company's address instead — it never silently drops a
+message.
+
+## Known gaps
+
+- Imagery is from Unsplash pending the client's own photography. All of it is
+  landscape or architectural on purpose: none of it claims to be an AKD property.
+- No director headshots — no photograph of any director appears in any published
+  Company document.
+- The legal pages carry no effective date, pending the client's instruction.
+- The Pakistan Stock Exchange listing date is not stated in any of the 110
+  filings, so it is not published here.
