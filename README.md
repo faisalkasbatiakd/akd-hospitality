@@ -84,10 +84,20 @@ hosts resolve splits ranking signals between two URLs for the same pages.
 including the FY2025 Notice of Annual General Meeting that went to every
 shareholder on the register. Those visitors must not land on a 404.
 
-**Contact form.** Set `NEXT_PUBLIC_WEB3FORMS_KEY` to deliver enquiries to
-`info@akdhospitality.com`. Without it the form still renders and validates, but
-submitting shows the Company's address instead — it never silently drops a
-message.
+**Contact form.** Enquiries post to `/api/contact`, which sends the mail through
+Resend. Set `RESEND_API_KEY` to deliver them to `info@akdhospitality.com`.
+Without it the form still renders and validates, but submitting shows the
+Company's address instead — it never silently drops a message.
+
+The key is a secret and stays server side, which is why this is a route rather
+than a direct browser call.
+
+**Before the domain is verified**, Resend's sandbox sender delivers only to the
+address that owns the Resend account — anything else returns 403. So
+`info@akdhospitality.com` is not reachable yet, and `CONTACT_TO` has to name the
+account owner in the meantime. Once `akdhospitality.com` is verified at
+resend.com/domains, set `CONTACT_FROM` to an address on that domain and
+`CONTACT_TO` to the real inbox; both have to change together.
 
 ## Known gaps
 
