@@ -10,19 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 /**
- * Web3Forms access key.
+ * Enquiries post to our own route, which sends the mail through Resend.
  *
- * Set NEXT_PUBLIC_WEB3FORMS_KEY in the environment. The key is public by
- * design - Web3Forms identifies the destination inbox by it and rate limits on
- * their side - so exposing it in the bundle is expected, not a leak.
+ * The Resend API key is a secret and stays server side, so there is nothing to
+ * read here to decide whether the form is connected - the route answers 503
+ * when the key is missing, and that is handled below.
  *
  * With no key configured the form still renders and still validates, but a
  * submission is reported as undeliverable with the Company's email address
  * offered instead. A contact form must never silently swallow a message.
  */
-const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? "";
-
-const ENDPOINT = "https://api.web3forms.com/submit";
+const ENDPOINT = "/api/contact";
 
 type Status = "idle" | "submitting" | "error";
 
@@ -36,52 +34,42 @@ export function ContactForm() {
     event.preventDefault();
     const form = event.currentTarget;
 
-    if (!accessKey) {
-      setStatus("error");
-      setErrorMessage(
-        `The enquiry form is not connected yet. Please email us at ${company.contact.email} and we will respond.`,
-      );
-      return;
-    }
-
     setStatus("submitting");
     setErrorMessage(null);
 
     const data = new FormData(form);
-    data.append("access_key", accessKey);
-    // Shown as the email subject in the destination inbox.
-    data.append(
-      "subject",
-      `Website enquiry: ${String(data.get("enquirySubject") ?? "General")}`,
+    const payload = Object.fromEntries(
+      Array.from(data.entries(), ([key, value]) => [key, String(value)]),
     );
-    data.append("from_name", "AKD Hospitality website");
 
     try {
       const response = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { Accept: "application/json" },
-        body: data,
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(payload),
       });
-      const result: { success?: boolean; message?: string } =
-        await response.json();
+      const result: { ok?: boolean; error?: string } = await response
+        .json()
+        .catch(() => ({}));
 
-      if (response.ok && result.success) {
+      if (response.ok && result.ok) {
         form.reset();
         setStatus("idle");
         dialogRef.current?.showModal();
         return;
       }
 
-      // Never surface the service's own message to a visitor - a
-      // misconfigured key produces text like "Invalid form_id/access_key
-      // format", which tells them nothing they can act on. Log it for us and
+      // Never surface the service's own error to a visitor: a missing key or an
+      // unverified domain tells them nothing they can act on. Log it for us and
       // show them the one thing that always works instead.
       if (process.env.NODE_ENV !== "production") {
-        console.error("Web3Forms rejected the submission:", result.message);
+        console.error("Enquiry not sent:", response.status, result.error);
       }
       setStatus("error");
       setErrorMessage(
-        `We could not send your message just now. Please email us at ${company.contact.email} and we will respond.`,
+        response.status === 503
+          ? `The enquiry form is not connected yet. Please email us at ${company.contact.email} and we will respond.`
+          : `We could not send your message just now. Please email us at ${company.contact.email} and we will respond.`,
       );
     } catch {
       setStatus("error");
