@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import {
   defaultDescription,
   defaultTitle,
+  isIndexable,
   siteName,
   siteUrl,
 } from "@/lib/site";
@@ -57,17 +58,24 @@ export const metadata: Metadata = {
     title: defaultTitle,
     description: defaultDescription,
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
+  /**
+   * The live site asks to be indexed in full. A temporary host asks not to be:
+   * the real domain still serves the previous website, so two hosts holding the
+   * same pages would compete for the same queries.
+   */
+  robots: isIndexable
+    ? {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+          "max-video-preview": -1,
+        },
+      }
+    : { index: false, follow: false, googleBot: { index: false, follow: false } },
   formatDetection: {
     telephone: true,
     address: true,

@@ -18,6 +18,20 @@ export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://akdhospitality.com"
 ).replace(/\/$/, "");
 
+/**
+ * Whether search engines may index this deployment.
+ *
+ * Set NEXT_PUBLIC_NOINDEX=true on anything that is not the live site. It is
+ * needed while the site runs on a temporary Railway host: the real domain is
+ * still serving the previous website, so if the temporary host were indexed
+ * there would eventually be two URLs holding the same pages, competing with
+ * each other for the same queries.
+ *
+ * Deliberately opt-out rather than opt-in. A forgotten flag then costs a
+ * missing staging page in the index, not the live site vanishing from it.
+ */
+export const isIndexable = process.env.NEXT_PUBLIC_NOINDEX !== "true";
+
 export const siteName = "AKD Hospitality Limited";
 
 export const defaultTitle =

@@ -30,6 +30,14 @@ const legacyPaths: Record<string, string> = {
   "Sitemap.aspx": "/sitemap",
 };
 
+/**
+ * Whether search engines may index this deployment. Mirrors `isIndexable` in
+ * src/lib/site.ts, read from the environment directly because this file is
+ * loaded outside the app's module graph and the `@/` alias does not resolve
+ * here.
+ */
+const isIndexable = process.env.NEXT_PUBLIC_NOINDEX !== "true";
+
 const nextConfig: NextConfig = {
   images: {
     // Hero and section imagery is served from the Unsplash CDN for now.
@@ -62,6 +70,25 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [
+      /*
+       * On a deployment that is not the live site, every response is marked
+       * noindex at the header rather than only the HTML pages. The archive is
+       * 110 PDFs and a PDF cannot carry a meta tag, so the header is the only
+       * way to keep the temporary host's copies of the filings - which are the
+       * same documents the live site will publish - out of the index.
+       *
+       * Spread in conditionally so the live site's responses stay clean.
+       */
+      ...(isIndexable
+        ? []
+        : [
+            {
+              source: "/:path*",
+              headers: [
+                { key: "X-Robots-Tag", value: "noindex, nofollow" },
+              ],
+            },
+          ]),
       {
         /*
          * The document archive is 110 files and about 146 MB, and none of it

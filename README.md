@@ -104,6 +104,20 @@ from the dashboard rather than a release.
 
 ## Other deployment notes
 
+**Search indexing** is switched off on anything that is not the live site, via
+`NEXT_PUBLIC_NOINDEX=true`. It is set on the Railway host, because
+`akdhospitality.com` still serves the previous website: two hosts carrying these
+same pages would compete for the same queries. The flag emits three signals -
+`noindex` on the pages, an `X-Robots-Tag` header on every response (the only way
+to cover the 110 PDFs, which cannot carry a meta tag), and a `robots.txt` that
+stops advertising the sitemap. Crawling stays allowed on purpose: a blocked
+crawler never reads the `noindex`.
+
+It is read at **build time**, so changing it needs a redeploy.
+
+> **Remove this flag the moment the client points `akdhospitality.com` here.**
+> Left in place, the launched site stays invisible to search.
+
 **Canonical host** is `https://akdhospitality.com` — apex, no `www`. It is
 derived from one value in `src/lib/site.ts` and feeds every canonical link,
 Open Graph URL, sitemap entry and robots directive.
