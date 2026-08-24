@@ -91,6 +91,56 @@ const nextConfig: NextConfig = {
           ]),
       {
         /*
+         * Applied to everything. None of these depend on the page, and a
+         * default that has to be remembered per route eventually is not.
+         */
+        source: "/:path*",
+        headers: [
+          // Stop a browser second-guessing a declared Content-Type. Matters
+          // most for the archive: a PDF must never be run as something else.
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          // Send the full URL only to ourselves; give other origins the origin
+          // alone. Dashboard paths should not travel in a Referer header.
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          // Framing is allowed only from this origin, so the dashboard cannot
+          // be embedded in someone else's page and clicked through.
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          // Nothing here needs a camera, a microphone or a location, so none
+          // of them can be asked for.
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+        /*
+         * Strict-Transport-Security is deliberately absent. It is per host, and
+         * the cutover to akdhospitality.com is the client's to make against an
+         * old site that is HTTP-only on both the apex and www. If that cutover
+         * were rolled back, visitors who had already been pinned to HTTPS could
+         * not reach the old site at all. Worth enabling once the domain has
+         * settled here - see the README.
+         */
+      },
+      {
+        /*
+         * The dashboard is never indexed, on any deployment including the live
+         * one. This is separate from the NEXT_PUBLIC_NOINDEX flag above, which
+         * is lifted at launch: the sign-in page is linked from the footer, so
+         * without this it would be perfectly crawlable on the real domain, and
+         * a company's admin login is not something to publish in search
+         * results.
+         *
+         * no-store as well, so an authenticated page is never held by a proxy
+         * or served from the back button after signing out.
+         */
+        source: "/admin/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "no-store, must-revalidate" },
+        ],
+      },
+      {
+        /*
          * The document archive is 110 files and about 146 MB, and none of it
          * ever changes: a filed AGM notice or an audited financial statement
          * is fixed once published, and a revision arrives as a new file with a

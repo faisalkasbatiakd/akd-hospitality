@@ -1,5 +1,6 @@
-import { Scale } from "lucide-react";
+import { CalendarDays, Scale } from "lucide-react";
 
+import { legalLastUpdatedIso, legalLastUpdatedLabel } from "@/data/legal";
 import { cn } from "@/lib/utils";
 
 export type LegalSection = {
@@ -76,8 +77,24 @@ export function LegalDocument({
 
           {/* Clauses */}
           <div className="min-w-0">
+            {/*
+              Dated at the top rather than the bottom. Someone checking whether
+              these terms are current should not have to read the whole document
+              to find out.
+            */}
             <p
-              className="text-[15px] leading-relaxed text-foreground/80"
+              className="flex items-center gap-2 text-xs text-muted-foreground"
+              data-aos="fade-up"
+            >
+              <CalendarDays className="size-3.5 text-brand-accent" aria-hidden />
+              Last updated{" "}
+              <time dateTime={legalLastUpdatedIso} className="font-medium text-foreground/70">
+                {legalLastUpdatedLabel}
+              </time>
+            </p>
+
+            <p
+              className="mt-4 text-[15px] leading-relaxed text-foreground/80"
               data-aos="fade-up"
             >
               {intro}

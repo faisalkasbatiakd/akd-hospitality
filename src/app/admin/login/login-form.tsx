@@ -54,6 +54,22 @@ export function LoginForm() {
         return;
       }
 
+      if (response.status === 429) {
+        /*
+         * Say how long the wait is rather than just refusing. A locked-out
+         * admin with no number to go on will keep retrying, which extends the
+         * window they are waiting on.
+         */
+        const seconds = Number(response.headers.get("Retry-After") ?? 0);
+        const minutes = Math.ceil(seconds / 60);
+        setError(
+          minutes > 1
+            ? `Too many failed attempts. Try again in about ${minutes} minutes.`
+            : "Too many failed attempts. Try again in about a minute.",
+        );
+        return;
+      }
+
       setError(
         response.status === 401
           ? "That email and password do not match."

@@ -47,3 +47,7 @@ next-env.d.ts
 # Dashboard uploads. Served through /api/files, never committed - user content
 # does not belong in the repo, and this directory is recreated on demand.
 storage/
+
+# Database dumps from scripts/backup.mjs. Real content, and not ours to
+# commit - a repo is not where a backup belongs.
+/backups

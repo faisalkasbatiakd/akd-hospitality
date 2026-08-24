@@ -145,12 +145,91 @@ account owner in the meantime. Once `akdhospitality.com` is verified at
 resend.com/domains, set `CONTACT_FROM` to an address on that domain and
 `CONTACT_TO` to the real inbox; both have to change together.
 
+## Security
+
+**Sign-in.** One admin account, no self-registration, no password reset by
+email. The endpoint is `POST /api/admin/session`.
+
+- **SQL injection is not reachable.** Every query goes through Drizzle, which
+  binds values as parameters rather than splicing them into SQL, and the request
+  body is validated by Zod before it gets that far — a payload like
+  `' OR '1'='1` is refused with a 400 and never touches the database. Verified
+  both ways: eight injection payloads against the live endpoint, and the same
+  payloads passed as bound parameters directly, returning zero rows with all 23
+  tables intact.
+- **Addresses cannot be enumerated.** An unknown email and a wrong password give
+  the same 401, and the bcrypt comparison runs either way against a dummy hash,
+  so neither returns measurably faster (measured: 251 ms vs 249 ms).
+- **Guessing is rate limited.** Ten failed attempts per fifteen minutes, counted
+  per address and per account, then 429 with `Retry-After`. A correct password
+  clears both counters. Lockouts are written to `audit_log`; the attempted
+  password never is. The counters are per-process — see `src/lib/rate-limit.ts`
+  for what that means if this is ever scaled past one instance.
+- **Sessions** are a signed JWT (HS256, `jose`) in an httpOnly cookie, `sameSite:
+  lax`, `secure` in production, eight-hour lifetime. Forged and unsigned
+  (`alg: none`) tokens are rejected. `AUTH_SECRET` never reaches the client
+  bundle and no token is logged.
+- **Every server action re-checks the session itself.** All 32 of them call
+  `requireSession()`; `src/proxy.ts` guards navigation, which is not the same
+  thing and is not relied on.
+
+**Headers** are set in `next.config.ts`: `nosniff`, `Referrer-Policy:
+strict-origin-when-cross-origin`, `X-Frame-Options: SAMEORIGIN`, and a
+`Permissions-Policy` denying camera, microphone and location.
+
+`/admin/*` additionally carries `X-Robots-Tag: noindex` and `Cache-Control:
+no-store` on **every** deployment, including the live one. This is separate from
+the `NEXT_PUBLIC_NOINDEX` flag, which gets lifted at launch: the sign-in page is
+linked from the footer, so without it the dashboard login would be crawlable on
+the real domain.
+
+`Strict-Transport-Security` is deliberately **not** set yet. It is per host, and
+the cutover to `akdhospitality.com` is the client's to make against an old site
+that is HTTP-only on both the apex and `www`. If that cutover were rolled back,
+visitors already pinned to HTTPS could not reach the old site at all. Add it once
+the domain has settled here.
+
+## Backups
+
+Three layers, and they cover different failures:
+
+| Layer | Set up where | Survives |
+| --- | --- | --- |
+| Volume backups | Railway → Postgres → **Backups** tab | a bad deploy or a data mistake |
+| Point-in-time recovery | same tab, **Enable PITR** | a bad migration, to the minute |
+| `npm run db:backup` | this repo | losing the project itself |
+
+The first two are Railway dashboard toggles and are **not yet enabled** — daily
+volume backups and PITR both need turning on there. PITR's window starts when you
+enable it, so enabling it after an incident is no help.
+
+The third is the one that matters most here, because this project has already
+been deleted and rebuilt once, and a volume's backups die with the volume:
+
+```bash
+ENV_FILE=prod.env npm run db:backup
+```
+
+Writes a `pg_dump` custom-format file to `backups/` (gitignored). Keep a copy off
+Railway. Drill the restore into a scratch database rather than trusting it — the
+commands are in the header of `scripts/backup.mjs`. Last drilled against
+production successfully: 23 tables, 110 documents, 7 directors, restored in under
+a second.
+
 ## Known gaps
 
-- Imagery is from Unsplash pending the client's own photography. All of it is
-  landscape or architectural on purpose: none of it claims to be an AKD property.
-- No director headshots — no photograph of any director appears in any published
-  Company document.
-- The legal pages carry no effective date, pending the client's instruction.
+- Imagery is from Unsplash. The client has seen it and is keeping it, intending
+  to swap it through the dashboard. All of it is landscape or architectural on
+  purpose: none of it claims to be an AKD property.
+- No director headshots. No photograph of any director appears in any published
+  Company document, and the named directors show tinted initials instead. This is
+  not a placeholder waiting to be filled with something better — a stock
+  portrait beside a real person's name states that this is them, and it isn't.
+  Real photographs upload through **Dashboard → Board & officers**.
 - The Pakistan Stock Exchange listing date is not stated in any of the 110
   filings, so it is not published here.
+- `NEXT_PUBLIC_NOINDEX=true` is set on Railway and **must be removed** when the
+  domain is pointed here.
+- Volume backups and PITR are not yet enabled in the Railway dashboard.
+- Resend still sends from the sandbox sender, so contact-form mail reaches only
+  the Resend account owner. The client is verifying the domain themselves.
