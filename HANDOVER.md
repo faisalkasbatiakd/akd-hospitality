@@ -150,6 +150,30 @@ styling choice.
    pinned visitors unable to reach the HTTP-only old site at all.
 8. Switch `CONTACT_FROM` and `CONTACT_TO` when the mailbox exists.
 
+### One step left on the deploy pipeline
+
+Railway's GitHub integration does not work on this project. The Railway account
+that owns it has no GitHub App access to `MuhammadZainDev/akd-hospitality`, so
+pushes never reach Railway — confirmed by the API, which answers *"User does not
+have access to the repo"*. Granting that access needs the repository owner to
+install the Railway GitHub App through GitHub's web flow; there is no API for it.
+
+Rather than leave every deploy manual, deployment now runs from the repository's
+side, in `.github/workflows/deploy.yml`. It type-checks, lints and then uploads
+to Railway, and it needs nothing from Railway except a token.
+
+**The one step remaining:** create a token in the Railway dashboard under
+**Settings → Tokens**, scoped to the production environment, then run
+
+```bash
+gh secret set RAILWAY_TOKEN
+```
+
+and paste it at the prompt. It goes straight to GitHub — not to a file, a commit,
+or a chat message. Until it is set, pushes fail in seconds with a message saying
+exactly this, on purpose: a deploy that quietly does nothing is worse than one
+that goes red.
+
 ### Housekeeping worth doing now
 
 9. **Enable volume backups and PITR** in the Railway dashboard, on the Postgres

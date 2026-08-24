@@ -73,7 +73,27 @@ If the static payload ever needs to move off the deployment, set
 ## Deploying
 
 Runs on Railway: a `web` service built from this repo, a managed Postgres, and a
-volume. Pushing to `main` deploys.
+volume.
+
+Pushing to `main` deploys, through `.github/workflows/deploy.yml` rather than
+Railway's own GitHub integration. That integration cannot be used here: the
+Railway account owning the project has no GitHub App access to this repository,
+so pushes never reach Railway and deploys would have to be started by hand. The
+workflow type-checks, lints, then runs `railway up`.
+
+It needs one secret. Create a token in the Railway dashboard under **Settings ->
+Tokens**, scoped to the production environment, then:
+
+```bash
+gh secret set RAILWAY_TOKEN
+```
+
+Paste it at the prompt — never into a file or a commit. Until that is set, every
+push fails immediately with a message saying so, which is deliberate: a deploy
+that silently does nothing is worse than one that goes red.
+
+If Railway's GitHub App access is ever granted, delete the workflow. Railway's
+own integration is simpler, and running both deploys every commit twice.
 
 **First deploy of a new environment**, in this order:
 

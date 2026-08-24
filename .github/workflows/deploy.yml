@@ -1,0 +1,90 @@
+# Deploy to Railway on every push to main.
+#
+# Railway's own GitHub integration cannot be used here: the Railway account that
+# owns the project has no GitHub App access to this repository, so pushes never
+# reach it and deploys have to be started by hand. This runs the deploy from the
+# repository's side instead, which needs nothing from Railway except a token.
+#
+# Setup, once. In the Railway dashboard, open the project, then Settings ->
+# Tokens, and create a token scoped to the production environment. Then, from a
+# clone of this repository:
+#
+#   gh secret set RAILWAY_TOKEN
+#
+# and paste it when prompted. Do not put the token in a file, a commit, or a
+# chat message - `gh secret set` reads it from the prompt and sends it straight
+# to GitHub, so it is never written to disk.
+#
+# If Railway's GitHub App access is granted later, delete this file: Railway's
+# own integration is the simpler arrangement, and running both would deploy
+# every commit twice.
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Manual runs, for redeploying without an empty commit.
+  workflow_dispatch:
+
+# One deploy at a time. Without this, two quick pushes race and the older build
+# can land after the newer one. In-progress runs are cancelled rather than
+# queued, because only the newest commit is worth deploying.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # A deploy that hangs should not hold a runner for six hours.
+    timeout-minutes: 30
+
+    steps:
+      # Checked before anything else, so the run fails in seconds with a
+      # readable reason rather than after a five-minute install. Deliberately a
+      # failure and not a skip: a deploy that quietly does nothing is worse
+      # than one that goes red, because nobody notices it stopped working.
+      - name: Check the Railway token is set
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::RAILWAY_TOKEN is not set, so nothing was deployed."
+            echo "Create a token in the Railway dashboard under Settings -> Tokens,"
+            echo "scoped to the production environment, then run:"
+            echo "    gh secret set RAILWAY_TOKEN"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Checked here rather than on Railway. Both are quick, and catching a
+      # broken commit before the upload saves pushing a build that cannot
+      # start - the archive alone is about 147 MB to send.
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint src
+
+      # Pinned so a CLI release cannot change what this workflow does. Bump it
+      # deliberately.
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli@5.37.7
+
+      - name: Deploy
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        # --ci streams the build log and exits on the result, so a red check
+        # here means the deploy actually failed rather than merely started.
+        # The token carries the project and environment; only the service needs
+        # naming.
+        run: railway up --ci --service web
