@@ -219,9 +219,14 @@ Three layers, and they cover different failures:
 | Point-in-time recovery | same tab, **Enable PITR** | a bad migration, to the minute |
 | `npm run db:backup` | this repo | losing the project itself |
 
-The first two are Railway dashboard toggles and are **not yet enabled** — daily
-volume backups and PITR both need turning on there. PITR's window starts when you
-enable it, so enabling it after an incident is no help.
+**PITR is enabled** (`railway postgres pitr enable`), bucket wired and verified —
+its recovery window only starts when switched on, so it was turned on
+immediately rather than at launch.
+
+**Volume backup schedules are not set yet.** They need the dashboard: each
+volume's **Backups** tab, daily and weekly, on both `postgres-volume` and
+`web-volume`. The API refuses it (`NotAuthorized`). Do not skip `web-volume` —
+it holds the director photographs and any PDF uploaded through the dashboard.
 
 The third is the one that matters most here, because this project has already
 been deleted and rebuilt once, and a volume's backups die with the volume:

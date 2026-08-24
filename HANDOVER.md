@@ -174,13 +174,24 @@ or a chat message. Until it is set, pushes fail in seconds with a message saying
 exactly this, on purpose: a deploy that quietly does nothing is worse than one
 that goes red.
 
+This cannot be automated: Railway's API refuses `projectTokenCreate` with
+`Not Authorized` for a CLI session, so minting the token is a dashboard action
+by design.
+
 ### Housekeeping worth doing now
 
-9. **Enable volume backups and PITR** in the Railway dashboard, on the Postgres
-   service's **Backups** tab. Both are toggles we cannot set through the API.
-   PITR's window starts when it is enabled, so enabling it after an incident is
-   no help. `npm run db:backup` already covers the third layer — the portable
-   copy that survives losing the project, which is not hypothetical here.
+9. **Volume backup schedules** still need setting in the Railway dashboard, on
+   each volume's **Backups** tab — daily and weekly, on both `postgres-volume`
+   and `web-volume`. The second one matters as much as the first: it holds the
+   director photographs and any PDF added through the dashboard.
+
+   The API refuses this one (`volumeInstanceBackupScheduleUpdate` →
+   `NotAuthorized`), so it is a dashboard action.
+
+   **PITR is already enabled** — done from the CLI, bucket wired, verified. It
+   was worth doing immediately rather than at launch, because the recovery
+   window only starts when it is switched on. The site was re-checked afterwards:
+   all 13 routes returned 200.
 10. **Delete the empty Railway project.** There are two named `akd-hospitality`:
     `fd12179c-9573-46b1-913d-16596ef3c6a2` holds `web` and `Postgres` and is
     live; `126e9fc2-99a7-41b7-94a0-44fd085a400a` has no services and is the one
