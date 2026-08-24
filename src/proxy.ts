@@ -5,11 +5,14 @@ import { SESSION_COOKIE, readSessionToken } from "@/lib/auth";
 /**
  * Guards the dashboard.
  *
+ * Named proxy.ts: Next 16 renamed the middleware convention and warns on the
+ * old name at build time. Same behaviour, same matcher.
+ *
  * This only gates navigation. Route handlers and server actions call
  * requireSession() themselves, because middleware is not a security boundary
  * you can rely on alone - a matcher change or a direct fetch bypasses it.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await readSessionToken(token) : null;

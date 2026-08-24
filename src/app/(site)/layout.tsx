@@ -32,3 +32,18 @@ export default async function SiteLayout({
     </div>
   );
 }
+
+/**
+ * The content lives in Postgres, so these pages are rendered on request rather
+ * than prerendered at build time.
+ *
+ * Prerendering them meant `next build` could only succeed while the database
+ * was reachable and already migrated - which is not true on a fresh deploy, and
+ * makes every future deploy fail if the database has a bad minute. Rendering on
+ * request removes that coupling entirely.
+ *
+ * Speed is unaffected in practice: every query in lib/content.ts sits behind
+ * unstable_cache with a tag, so a request serves from cache and only touches
+ * Postgres when an editor has invalidated something.
+ */
+export const dynamic = "force-dynamic";

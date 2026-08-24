@@ -1,0 +1,6 @@
+# Never uploaded to the builder: recreated there or local-only.
+node_modules
+.next
+storage
+.env.local
+*.log
