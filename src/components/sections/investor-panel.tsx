@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { company, investorPanel } from "@/data/company";
+import { getImages, getSetting } from "@/lib/content";
 
 /**
  * Closing two-panel call to action: a statement card beside a photograph.
@@ -10,7 +10,25 @@ import { company, investorPanel } from "@/data/company";
  * The card carries the AKD monogram as a faint watermark, so the panel reads as
  * the Company's own without needing a second colour.
  */
-export function InvestorPanel() {
+type PanelBlock = {
+  eyebrow: string;
+  heading: string;
+  body: string;
+  ctaLabel: string;
+  ctaHref: string;
+};
+type ContactBlock = { investorEmail: string };
+
+export async function InvestorPanel() {
+  const [images, investorPanel, contact] = await Promise.all([
+    getImages(),
+    getSetting<PanelBlock>("investorPanel"),
+    getSetting<ContactBlock>("contact"),
+  ]);
+  if (!investorPanel || !contact) return null;
+  const media = images.investorPanel;
+  const company = { contact };
+
   return (
     <section className="border-t border-border bg-background">
       <div className="mx-auto max-w-[1600px] px-5 py-14 lg:px-10 lg:py-16">
@@ -76,8 +94,8 @@ export function InvestorPanel() {
             data-aos="fade-up"
           >
             <Image
-              src={investorPanel.image}
-              alt={investorPanel.imageAlt}
+              src={media.url}
+              alt={media.alt}
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover"

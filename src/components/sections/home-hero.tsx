@@ -6,11 +6,28 @@ import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { heroHighlights, heroSlides } from "@/data/hero";
 
 const SLIDE_MS = 7000;
 
-export function HomeHero() {
+export type HeroSlide = { image: string; alt: string; credit?: string };
+export type HeroHighlight = {
+  title: string;
+  body: string;
+  href: string;
+  linkLabel: string;
+};
+
+/**
+ * Slides and highlights come from the server so they are editable in the
+ * dashboard. The carousel timers remain client state.
+ */
+export function HomeHero({
+  heroSlides,
+  heroHighlights,
+}: {
+  heroSlides: HeroSlide[];
+  heroHighlights: HeroHighlight[];
+}) {
   const [slide, setSlide] = useState(0);
   const [highlight, setHighlight] = useState(0);
 
@@ -33,7 +50,12 @@ export function HomeHero() {
     return () => window.clearInterval(timer);
   }, [slideCount]);
 
-  const currentHighlight = heroHighlights[highlight];
+  /**
+   * Both lists are editable now, so neither index can be trusted: the
+   * highlight panel simply does not render when there is nothing to show.
+   */
+  const currentHighlight =
+    highlightCount > 0 ? heroHighlights[highlight % highlightCount] : null;
 
   return (
     <section className="relative isolate flex min-h-[calc(100svh-3rem)] flex-col justify-end overflow-hidden">
@@ -95,6 +117,7 @@ export function HomeHero() {
           </div>
 
           {/* Highlight glass card */}
+          {currentHighlight ? (
           <div
             data-aos="fade-up"
             data-aos-delay="300"
@@ -142,6 +165,7 @@ export function HomeHero() {
               {currentHighlight.linkLabel}
             </Link>
           </div>
+          ) : null}
         </div>
 
         {/* Slide indicators */}

@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { defaultPageHero, pageHeroes } from "@/data/page-heroes";
+import { getImages } from "@/lib/content";
 
 type PageHeroProps = {
   title: string;
@@ -17,13 +17,40 @@ type PageHeroProps = {
  * rather than full viewport height, and the title is centred where the home
  * headline is left aligned.
  */
-export function PageHero({ title, description, route }: PageHeroProps) {
-  const media = (route && pageHeroes[route]) || defaultPageHero;
+export async function PageHero({ title, description, route }: PageHeroProps) {
+  const images = await getImages();
+  // Falls back to the shared hero, then to nothing rendering rather than a
+  // broken image, if an editor has somehow cleared the slot.
+  const media =
+    (route ? images[`pageHero:${route}`] : undefined) ??
+    images["pageHero:default"];
+
+  /**
+   * Both slots would have to be missing for this - only reachable if the images
+   * table were emptied. Better a plain navy band than a broken image, and the
+   * title still reads.
+   */
+  if (!media) {
+    return (
+      <section className="flex min-h-[300px] items-center justify-center bg-brand-navy-dark px-5 py-16 text-center">
+        <div>
+          <h1 className="text-3xl font-semibold text-white sm:text-4xl">
+            {title}
+          </h1>
+          {description ? (
+            <p className="mx-auto mt-4 max-w-2xl text-sm text-white/80">
+              {description}
+            </p>
+          ) : null}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative isolate flex min-h-[300px] items-center justify-center overflow-hidden sm:min-h-[360px] lg:min-h-[420px]">
       <Image
-        src={media.image}
+        src={media.url}
         alt={media.alt}
         fill
         priority

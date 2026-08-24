@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 
-import { AnnouncementTicker } from "@/components/layout/announcement-ticker";
-import { AosProvider } from "@/components/layout/aos-provider";
-import { SiteHeader } from "@/components/layout/site-header";
-import { SiteFooter } from "@/components/layout/site-footer";
 import {
   defaultDescription,
   defaultTitle,
@@ -79,6 +75,10 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Document shell only. The public site's header, ticker and footer live in
+ * (site)/layout.tsx so that /admin can render without them.
+ */
 export default function RootLayout({
   children,
 }: {
@@ -86,16 +86,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en-PK" className={`${poppins.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-background">
-        <AosProvider />
-        <AnnouncementTicker />
-        {/* Relative wrapper so the header can overlay the home page hero. */}
-        <div className="relative flex flex-1 flex-col">
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-        </div>
-        <SiteFooter />
-      </body>
+      <body className="min-h-full bg-background">{children}</body>
     </html>
   );
 }

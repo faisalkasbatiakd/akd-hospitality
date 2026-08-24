@@ -4,11 +4,21 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { announcements } from "@/data/announcements";
 
 const ROTATE_MS = 6000;
 
-export function AnnouncementTicker() {
+export type Announcement = { title: string; href: string };
+
+/**
+ * Notices come from the server as props. The rotation is client state, so the
+ * component stays a client one - but the content is editable in the dashboard
+ * rather than compiled in.
+ */
+export function AnnouncementTicker({
+  announcements,
+}: {
+  announcements: Announcement[];
+}) {
   const [index, setIndex] = useState(0);
   const total = announcements.length;
 
@@ -23,7 +33,13 @@ export function AnnouncementTicker() {
     return () => window.clearInterval(timer);
   }, [go, total]);
 
-  const current = announcements[index];
+  /**
+   * An editor can now remove every notice, so the bar has to be able to
+   * disappear rather than render an undefined item.
+   */
+  if (total === 0) return null;
+
+  const current = announcements[index % total];
 
   return (
     <div className="relative z-50 bg-brand-navy text-white">

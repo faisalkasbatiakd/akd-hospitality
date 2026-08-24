@@ -43,3 +43,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Dashboard uploads. Served through /api/files, never committed - user content
+# does not belong in the repo, and this directory is recreated on demand.
+storage/

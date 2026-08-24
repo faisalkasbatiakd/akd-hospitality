@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { aboutMedia, company } from "@/data/company";
+import { getImages, getSetting } from "@/lib/content";
 
 /**
  * About introduction for the home page.
@@ -10,7 +10,19 @@ import { aboutMedia, company } from "@/data/company";
  * A four-tile row that alternates photography with a statement card, so the
  * vision and mission each sit beside their own image.
  */
-export function AboutIntro() {
+type CompanyBlock = { intro: string; vision: string; mission: string };
+
+export async function AboutIntro() {
+  const [images, company] = await Promise.all([
+    getImages(),
+    getSetting<CompanyBlock>("company"),
+  ]);
+  // Settings are seeded and required by their schema; a missing block means
+  // an unseeded database rather than something to render around.
+  if (!company) return null;
+  const vision = images["aboutMedia:vision"];
+  const mission = images["aboutMedia:mission"];
+
   return (
     <section className="mx-auto max-w-[1600px] px-5 py-16 lg:px-10 lg:py-24">
       {/* Intro: eyebrow left, headline and copy right */}
@@ -47,8 +59,8 @@ export function AboutIntro() {
           className="relative min-h-[280px] overflow-hidden rounded-2xl lg:min-h-[430px]"
         >
           <Image
-            src={aboutMedia.vision.image}
-            alt={aboutMedia.vision.alt}
+            src={vision.url}
+            alt={vision.alt}
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover"
@@ -85,8 +97,8 @@ export function AboutIntro() {
           className="relative min-h-[280px] overflow-hidden rounded-2xl lg:min-h-[430px]"
         >
           <Image
-            src={aboutMedia.mission.image}
-            alt={aboutMedia.mission.alt}
+            src={mission.url}
+            alt={mission.alt}
             fill
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover"

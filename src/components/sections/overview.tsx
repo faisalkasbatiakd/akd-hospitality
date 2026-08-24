@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { company, overviewMedia } from "@/data/company";
+import { getImages, getSetting } from "@/lib/content";
 
 /**
  * Overview of where the Company currently stands.
@@ -15,8 +15,22 @@ import { company, overviewMedia } from "@/data/company";
  * Sits on the page background with a hairline rule above it, so it separates
  * from the section before without introducing a second surface colour.
  */
-export function Overview() {
-  const { currentStage } = company;
+type StageBlock = {
+  eyebrow: string;
+  heading: string;
+  body: string[];
+  facts: { value: string; label: string }[];
+};
+
+export async function Overview() {
+  const [images, currentStage] = await Promise.all([
+    getImages(),
+    getSetting<StageBlock>("currentStage"),
+  ]);
+  if (!currentStage) return null;
+  const primary = images["overviewMedia:primary"];
+  const secondary = images["overviewMedia:secondary"];
+
 
   return (
     <section className="border-t border-border bg-background">
@@ -57,8 +71,8 @@ export function Overview() {
             className="relative h-[240px] overflow-hidden rounded-2xl sm:h-[320px] lg:h-[430px]"
           >
             <Image
-              src={overviewMedia.primary.image}
-              alt={overviewMedia.primary.alt}
+              src={primary.url}
+              alt={primary.alt}
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover"
@@ -68,8 +82,8 @@ export function Overview() {
           <div className="flex flex-col" data-aos="fade-up" data-aos-delay="120">
             <div className="relative h-[200px] overflow-hidden rounded-2xl sm:h-[240px] lg:h-[270px]">
               <Image
-                src={overviewMedia.secondary.image}
-                alt={overviewMedia.secondary.alt}
+                src={secondary.url}
+                alt={secondary.alt}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover"

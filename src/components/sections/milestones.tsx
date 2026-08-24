@@ -5,7 +5,6 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { milestones } from "@/data/company";
 
 /**
  * Corporate timeline.
@@ -14,7 +13,17 @@ import { milestones } from "@/data/company";
  * `overflow: hidden`, so the wide track is fully contained and cannot push the
  * page into horizontal scroll, and there is no native scrollbar on show.
  */
-export function Milestones() {
+export type Milestone = {
+  year: string;
+  title: string;
+  description: string;
+};
+
+/**
+ * The timeline is a client carousel, so the entries arrive as props from the
+ * server rather than being compiled in.
+ */
+export function Milestones({ milestones }: { milestones: Milestone[] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps",
