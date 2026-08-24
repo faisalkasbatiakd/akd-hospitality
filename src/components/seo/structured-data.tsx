@@ -1,4 +1,4 @@
-import { company } from "@/data/company";
+import { getCompany } from "@/lib/content";
 import { siteName, siteUrl } from "@/lib/site";
 
 /**
@@ -10,7 +10,11 @@ import { siteName, siteUrl } from "@/lib/site";
  * FY2025 annual report or the Company's own contact details - nothing is
  * inferred, and no employee or revenue figures are published.
  */
-export function StructuredData() {
+export async function StructuredData() {
+  const company = await getCompany();
+  // Seeded and schema-required; null means an unseeded database.
+  if (!company) return null;
+
   const graph = [
     {
       "@type": "Corporation",

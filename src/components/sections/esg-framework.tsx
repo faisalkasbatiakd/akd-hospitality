@@ -9,7 +9,7 @@ import {
 
 import { iconTint } from "@/lib/icon-tints";
 import { cn } from "@/lib/utils";
-import { aboutSectionMedia, esg } from "@/data/company";
+import { getAboutLists, getImages, getSetting } from "@/lib/content";
 
 /** One icon per pillar, in the order the annual report lists them. */
 const pillarIcons = [ShieldCheck, Compass, TriangleAlert, BarChart3];
@@ -22,7 +22,23 @@ const pillarIcons = [ShieldCheck, Compass, TriangleAlert, BarChart3];
  * framework, measured metrics and named policies, all of which are real and
  * attributable to the FY2025 annual report.
  */
-export function EsgFramework() {
+type EsgHeader = { eyebrow: string; heading: string; intro: string };
+
+export async function EsgFramework() {
+  const [images, header, lists] = await Promise.all([
+    getImages(),
+    getSetting<EsgHeader>("esgHeader"),
+    getAboutLists(),
+  ]);
+  if (!header) return null;
+  const media = images["aboutSectionMedia:esg"];
+  const esg = {
+    ...header,
+    pillars: lists.esgPillars,
+    metrics: lists.esgMetrics,
+    policies: lists.esgPolicies,
+  };
+
   return (
     <section className="border-y border-border bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
@@ -89,8 +105,8 @@ export function EsgFramework() {
           data-aos="fade-up"
         >
           <Image
-            src={aboutSectionMedia.esg.image}
-            alt={aboutSectionMedia.esg.alt}
+            src={media.url}
+            alt={media.alt}
             fill
             sizes="100vw"
             className="object-cover"

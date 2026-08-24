@@ -19,14 +19,8 @@ import {
 import { iconTint } from "@/lib/icon-tints";
 import { cn } from "@/lib/utils";
 import { docUrl } from "@/lib/site";
-import { company, mediaSectionMedia } from "@/data/company";
-import {
-  corporateActions,
-  latestAgm,
-  latestBriefing,
-  meetingRecord,
-  shareholderServices,
-} from "@/data/media-notices";
+import { getImages, getSetting } from "@/lib/content";
+import type * as Notices from "@/data/media-notices";
 import { SectionHeading } from "@/components/shared/section-heading";
 
 const serviceIcons = [
@@ -67,7 +61,40 @@ function Fact({
  * Every block cites the filing it is drawn from, in the same way the Investors
  * page does, so a reader can check any statement against the PDF below it.
  */
-export function MediaHighlights() {
+type ContactBlock = { email: string; investorEmail: string };
+
+/**
+ * The five notice blocks come from the settings table, typed against the shapes
+ * the data file published so the markup below did not have to change.
+ */
+export async function MediaHighlights() {
+  const [images, contact, latestAgm, latestBriefing, corporateActions, meetingRecord, shareholderServices] =
+    await Promise.all([
+      getImages(),
+      getSetting<ContactBlock>("contact"),
+      getSetting<typeof Notices.latestAgm>("latestAgm"),
+      getSetting<typeof Notices.latestBriefing>("latestBriefing"),
+      getSetting<typeof Notices.corporateActions>("corporateActions"),
+      getSetting<typeof Notices.meetingRecord>("meetingRecord"),
+      getSetting<typeof Notices.shareholderServices>("shareholderServices"),
+    ]);
+
+  if (
+    !contact ||
+    !latestAgm ||
+    !latestBriefing ||
+    !corporateActions ||
+    !meetingRecord ||
+    !shareholderServices
+  ) {
+    return null;
+  }
+
+  const company = { contact };
+  const mediaSectionMedia = {
+    agm: images["mediaSectionMedia:agm"],
+    briefing: images["mediaSectionMedia:briefing"],
+  };
   return (
     <>
       {/* Latest AGM + latest corporate briefing */}
@@ -87,7 +114,7 @@ export function MediaHighlights() {
             >
               <div className="relative h-44 w-full overflow-hidden sm:h-52">
                 <Image
-                  src={mediaSectionMedia.agm.image}
+                  src={mediaSectionMedia.agm.url}
                   alt={mediaSectionMedia.agm.alt}
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
@@ -183,7 +210,7 @@ export function MediaHighlights() {
             >
               <div className="relative h-44 w-full overflow-hidden sm:h-52">
                 <Image
-                  src={mediaSectionMedia.briefing.image}
+                  src={mediaSectionMedia.briefing.url}
                   alt={mediaSectionMedia.briefing.alt}
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"

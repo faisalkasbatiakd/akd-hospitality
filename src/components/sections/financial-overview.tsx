@@ -10,7 +10,7 @@ import {
   shareholding,
   sixYearData,
 } from "@/data/financials";
-import { investorMedia } from "@/data/company";
+import { getImages } from "@/lib/content";
 import { SectionHeading } from "@/components/shared/section-heading";
 
 const snapshotIcons = [Wallet, TrendingUp, PieChart];
@@ -22,7 +22,9 @@ const snapshotIcons = [Wallet, TrendingUp, PieChart];
  * only place they can be given their proper context: the going-concern notice
  * sits immediately above them.
  */
-export function FinancialOverview() {
+export async function FinancialOverview() {
+  const images = await getImages();
+  const investorMedia = images.investorMedia;
   return (
     <>
       {/* Going concern first, so the figures below are never read alone */}
@@ -262,7 +264,7 @@ export function FinancialOverview() {
                 data-aos-delay="180"
               >
                 <Image
-                  src={investorMedia.image}
+                  src={investorMedia.url}
                   alt={investorMedia.alt}
                   fill
                   sizes="(min-width: 1024px) 33vw, 100vw"

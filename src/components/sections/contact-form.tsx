@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { CheckCircle2, Loader2, Send, TriangleAlert, X } from "lucide-react";
 
-import { company } from "@/data/company";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +23,11 @@ const ENDPOINT = "/api/contact";
 
 type Status = "idle" | "submitting" | "error";
 
-export function ContactForm() {
+/**
+ * The fallback address is passed in rather than imported: this is a client
+ * component, and the value now lives in the database.
+ */
+export function ContactForm({ contactEmail }: { contactEmail: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -68,13 +71,13 @@ export function ContactForm() {
       setStatus("error");
       setErrorMessage(
         response.status === 503
-          ? `The enquiry form is not connected yet. Please email us at ${company.contact.email} and we will respond.`
-          : `We could not send your message just now. Please email us at ${company.contact.email} and we will respond.`,
+          ? `The enquiry form is not connected yet. Please email us at ${contactEmail} and we will respond.`
+          : `We could not send your message just now. Please email us at ${contactEmail} and we will respond.`,
       );
     } catch {
       setStatus("error");
       setErrorMessage(
-        `We could not reach the mail service. Please check your connection, or email us at ${company.contact.email}.`,
+        `We could not reach the mail service. Please check your connection, or email us at ${contactEmail}.`,
       );
     }
   }
@@ -222,43 +225,70 @@ export function ContactForm() {
       {/* Thank-you dialog */}
       <dialog
         ref={dialogRef}
-        className="modal m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl border border-border bg-background p-0 text-left shadow-2xl backdrop:backdrop-blur-sm"
+        className="modal relative m-auto w-[min(27rem,calc(100vw-2rem))] rounded-2xl border border-border bg-background p-0 text-left shadow-2xl backdrop:bg-brand-navy-dark/40 backdrop:backdrop-blur-sm open:animate-in open:fade-in open:zoom-in-95 open:duration-200"
         aria-labelledby="contact-thanks-title"
       >
-        <div className="p-6 lg:p-7">
-          <div className="flex items-start justify-between gap-4">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600">
-              <CheckCircle2 className="size-6" aria-hidden />
-            </span>
-            <button
-              type="button"
-              onClick={() => dialogRef.current?.close()}
-              aria-label="Close"
-              className="grid size-9 place-items-center rounded-full text-muted-foreground transition-colors duration-300 hover:bg-accent hover:text-brand-navy"
-            >
-              <X className="size-4" aria-hidden />
-            </button>
-          </div>
+        {/* Close sits in the corner rather than beside the icon, so the icon
+            and the heading can share one centred column. */}
+        <button
+          type="button"
+          onClick={() => dialogRef.current?.close()}
+          aria-label="Close"
+          className="absolute top-3 right-3 grid size-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-brand-navy"
+        >
+          <X className="size-4" aria-hidden />
+        </button>
+
+        <div className="px-6 pt-9 pb-6 text-center sm:px-8 sm:pt-10">
+          {/* Concentric rings behind the tick, which reads as a moment of
+              confirmation rather than a flat badge in the corner. */}
+          <span className="relative mx-auto grid size-16 place-items-center">
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-full bg-brand-accent/10"
+            />
+            <span
+              aria-hidden
+              className="absolute inset-2 rounded-full bg-brand-accent/15"
+            />
+            <CheckCircle2
+              className="relative size-8 text-brand-accent"
+              aria-hidden
+            />
+          </span>
 
           <h2
             id="contact-thanks-title"
-            className="mt-5 text-xl font-medium text-brand-navy"
+            className="mt-5 text-xl font-semibold text-brand-navy"
           >
             Thank you for your message
           </h2>
-          <p className="mt-3 text-sm leading-relaxed text-foreground/75">
+          <p className="mx-auto mt-2.5 max-w-[34ch] text-sm leading-relaxed text-muted-foreground">
             Your enquiry has been sent to the Company Secretary. We will respond
-            to the email address you provided. For shareholder matters you can
-            also contact our Share Registrar directly.
+            to the email address you provided.
           </p>
 
-          <Button
-            type="button"
-            onClick={() => dialogRef.current?.close()}
-            className="mt-6 w-full bg-brand-navy text-white transition-colors duration-300 hover:bg-brand-accent"
-          >
-            Close
-          </Button>
+          <div className="mt-6 space-y-3">
+            <Button
+              type="button"
+              onClick={() => dialogRef.current?.close()}
+              className="w-full"
+            >
+              Close
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              For shareholder matters — transfers, dividends, folio details —
+              contact the{" "}
+              <a
+                href="#share-registrar"
+                onClick={() => dialogRef.current?.close()}
+                className="font-medium text-brand-accent underline-offset-4 hover:underline"
+              >
+                Share Registrar
+              </a>{" "}
+              directly.
+            </p>
+          </div>
         </div>
       </dialog>
     </>

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Quote } from "lucide-react";
 
-import { chairpersonReview } from "@/data/company";
+import { getSetting } from "@/lib/content";
 
 /**
  * Chairperson's Review.
@@ -12,7 +12,22 @@ import { chairpersonReview } from "@/data/company";
  * so the right-hand panel presents verified board facts rather than a stock
  * photograph of someone who is not him.
  */
-export function ChairpersonReview() {
+type ReviewBlock = {
+  eyebrow: string;
+  heading: string;
+  quotes: string[];
+  pullQuote: string;
+  signatory: string;
+  signatoryRole: string;
+  place: string;
+  date: string;
+  boardFacts: { value: string; label: string }[];
+};
+
+export async function ChairpersonReview() {
+  const chairpersonReview = await getSetting<ReviewBlock>("chairpersonReview");
+  if (!chairpersonReview) return null;
+
   const review = chairpersonReview;
 
   return (

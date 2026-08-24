@@ -2,11 +2,41 @@ import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Phone, Printer } from "lucide-react";
 
-import { company } from "@/data/company";
+import { getAboutLists, getSetting } from "@/lib/content";
 import { legalNav, mainNav } from "@/lib/nav";
 
-export function SiteFooter() {
+type CompanyBlock = {
+  name: string;
+  formerName?: string;
+  symbol: string;
+  exchange: string;
+  incorporated: string;
+};
+type ContactBlock = {
+  address: string[];
+  phone: string;
+  fax?: string;
+  email: string;
+};
+
+export async function SiteFooter() {
   const year = new Date().getFullYear();
+  const [companyBlock, contact, lists] = await Promise.all([
+    getSetting<CompanyBlock>("company"),
+    getSetting<ContactBlock>("contact"),
+    getAboutLists(),
+  ]);
+
+  // Every field below is required by the settings schema, so a missing block
+  // means the database has not been seeded - not something to paper over with
+  // half a footer.
+  if (!companyBlock || !contact) return null;
+
+  const company = {
+    ...companyBlock,
+    contact,
+    externalLinks: lists.externalLinks,
+  };
 
   return (
     <footer className="mt-auto bg-brand-navy-dark text-white/75">
@@ -133,6 +163,19 @@ export function SiteFooter() {
                 {item.label}
               </Link>
             ))}
+            {/*
+              Staff entry point to the content dashboard. Kept quiet and
+              nofollow'd: the login page is already noindex, and there is no
+              reason for a crawler to walk into it. It is a link, not a
+              secret - the session cookie is what protects the dashboard.
+            */}
+            <Link
+              href="/admin/login"
+              rel="nofollow"
+              className="inline-block border-l border-white/15 py-1 pl-5 text-white/45 transition-colors hover:text-white/80"
+            >
+              Staff login
+            </Link>
           </nav>
         </div>
       </div>
