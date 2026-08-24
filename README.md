@@ -70,7 +70,39 @@ filed notice never changes — a revision arrives as a new file with a new name.
 If the static payload ever needs to move off the deployment, set
 `NEXT_PUBLIC_DOCS_BASE_URL` to blob or object storage. No code changes needed.
 
-## Deployment notes
+## Deploying
+
+Runs on Railway: a `web` service built from this repo, a managed Postgres, and a
+volume. Pushing to `main` deploys.
+
+**First deploy of a new environment**, in this order:
+
+1. Create the Postgres service and reference it: `DATABASE_URL=${{ Postgres.DATABASE_URL }}`.
+   The internal hostname is correct — the build does not touch the database.
+2. Mount a volume at **`/app/storage`**. Without it, every deploy discards the
+   director photographs and any PDF added through the dashboard: a container
+   filesystem does not survive a restart.
+3. Set `AUTH_SECRET` (fresh per environment), `RESEND_API_KEY`, `CONTACT_TO` and
+   `NEXT_PUBLIC_SITE_URL`.
+4. Set the pre-deploy command to `npx drizzle-kit migrate` and the health check
+   path to `/api/health`. The check queries the database, so traffic is not
+   routed to a server that cannot reach its content.
+5. Seed and create the login, pointing at the database through a TCP proxy:
+
+   ```
+   ENV_FILE=prod.env npm run db:seed
+   ENV_FILE=prod.env npm run db:admin -- --email you@example.com --name "..." --password "..."
+   ```
+
+6. **Redeploy.** Seeding a database the app has already served from leaves the
+   cached reads holding the empty results from before the seed, and pages render
+   blank until the process restarts. A redeploy clears them.
+
+Steps 5 and 6 are once per environment. After that, `git push` is the whole
+deploy: migrations run before the new version starts, and content changes come
+from the dashboard rather than a release.
+
+## Other deployment notes
 
 **Canonical host** is `https://akdhospitality.com` — apex, no `www`. It is
 derived from one value in `src/lib/site.ts` and feeds every canonical link,
