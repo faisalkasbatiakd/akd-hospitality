@@ -152,31 +152,38 @@ styling choice.
 
 ### One step left on the deploy pipeline
 
-Railway's GitHub integration does not work on this project. The Railway account
-that owns it has no GitHub App access to `MuhammadZainDev/akd-hospitality`, so
-pushes never reach Railway — confirmed by the API, which answers *"User does not
-have access to the repo"*. Granting that access needs the repository owner to
-install the Railway GitHub App through GitHub's web flow; there is no API for it.
+Pushes did not reach Railway, so every deploy was manual. The cause was not what
+it first looked like. Railway kept answering *"User does not have access to the
+repo"*, and the repository was owned by `MuhammadZainDev` while the Railway
+account belongs to Faisal — and Railway's GitHub App cannot be granted access to
+a repository the account does not own.
 
-Rather than leave every deploy manual, deployment now runs from the repository's
-side, in `.github/workflows/deploy.yml`. It type-checks, lints and then uploads
-to Railway, and it needs nothing from Railway except a token.
+So the repository was **transferred to `faisalkasbatiakd`**, keeping all thirteen
+commits, all three branches and the old URLs as redirects. `MuhammadZainDev` kept
+push access automatically, as a collaborator rather than an owner, which is the
+right arrangement now that the client's side holds it.
 
-**The one step remaining:** create a token in the Railway dashboard under
-**Settings → Tokens**, scoped to the production environment, then run
+That removed the blocker but not the last step, because the Railway account still
+has no GitHub connection at all — `githubRepos` answers `Not Authorized`. That
+one is a dashboard action; a CLI session cannot authorize an OAuth connection.
 
-```bash
-gh secret set RAILWAY_TOKEN
-```
+**The one step remaining**, in the Railway dashboard:
 
-and paste it at the prompt. It goes straight to GitHub — not to a file, a commit,
-or a chat message. Until it is set, pushes fail in seconds with a message saying
-exactly this, on purpose: a deploy that quietly does nothing is worse than one
-that goes red.
+1. Open the project → the **web** service → **Settings** → **Source**
+2. Connect GitHub if it is not linked yet, and authorize Railway
+3. Where it offers **Configure GitHub App** (or *"can't find your repo?"*), grant
+   the App access to `akd-hospitality`, and save
+4. Select `faisalkasbatiakd/akd-hospitality`, branch `main`
 
-This cannot be automated: Railway's API refuses `projectTokenCreate` with
-`Not Authorized` for a CLI session, so minting the token is a dashboard action
-by design.
+Then pushing to `main` deploys. Until then, `railway up` from a clone deploys
+manually and works — it is how the current build was shipped.
+
+There was briefly a GitHub Actions workflow doing the deploy from the repository
+side instead. It is gone, because Railway's own integration is simpler and
+running both would deploy every commit twice. If the dashboard step turns out not
+to work, it is recoverable: `git show 5a2cc80:.github/workflows/deploy.yml`.
+Note that it needs a Railway project token, and `projectTokenCreate` is refused
+to a CLI session, so that token is a dashboard action too.
 
 ### Housekeeping worth doing now
 
