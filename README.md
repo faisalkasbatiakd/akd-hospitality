@@ -90,6 +90,14 @@ the repo"* for both:
   account is not the same step — the account settings page has a separate
   *Configure repo access* link that hands the App the specific repository.
 
+**A push from a collaborator waits for approval.** The repository is owned by the
+Railway account holder, and Railway will not put a commit authored by anyone else
+straight into production — the deployment sits at `NEEDS_APPROVAL` until the
+owner approves it in the dashboard. That is Railway protecting the environment,
+not a misconfiguration, and it is worth keeping: a client-owned production site
+should not redeploy because a contractor pushed. Expect it on every push that is
+not authored by the account holder.
+
 If a deploy ever needs starting by hand, `railway up` from a clone still works.
 
 **First deploy of a new environment**, in this order:

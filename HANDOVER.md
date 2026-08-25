@@ -173,10 +173,20 @@ Granting it lives under **Account settings → Integrations → GitHub → Confi
 repo access**, not in the service's own settings, and it is a dashboard action: a
 CLI session cannot authorize it.
 
-**Both are now done.** The `web` service is connected to
-`faisalkasbatiakd/akd-hospitality@main`, and pushing to `main` deploys. If a
-deploy ever needs starting by hand, `railway up` from a clone still works — it is
-how builds were shipped while this was being sorted out.
+**Both are now done and tested end to end.** The `web` service is connected to
+`faisalkasbatiakd/akd-hospitality@main`; a push produced a deployment, it
+succeeded, and all 13 routes were re-checked afterwards.
+
+One behaviour to know about, because it will come up on every push. Railway will
+not send a commit authored by a *collaborator* straight to production — the
+deployment waits at `NEEDS_APPROVAL` until the account holder approves it in the
+dashboard. Since Faisal owns the repository and Zain pushes as a collaborator,
+that is now the normal path for Zain's commits.
+
+This is worth keeping rather than working around. A client-owned production site
+should not redeploy itself because a contractor pushed. It does mean someone has
+to click approve, so if a change is urgent and Faisal is not around, `railway up`
+from a clone still deploys directly.
 
 There was briefly a GitHub Actions workflow doing the deploy from the repository
 side instead. It is gone, because Railway's own integration is simpler and
