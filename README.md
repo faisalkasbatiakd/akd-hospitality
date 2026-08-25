@@ -75,17 +75,22 @@ If the static payload ever needs to move off the deployment, set
 Runs on Railway: a `web` service built from this repo, a managed Postgres, and a
 volume.
 
-Pushing to `main` deploys, via Railway's GitHub integration.
+Pushing to `main` deploys, via Railway's GitHub integration. Migrations run
+before the new version starts, and content changes come from the dashboard rather
+than a release.
 
-That needs the Railway GitHub App connected on the Railway account, once: in the
-dashboard, open the `web` service, then **Settings -> Source**, connect GitHub if
-it is not linked, and grant the App access to this repository. Until that is
-done, pushes do not reach Railway and deploys have to be started by hand with
-`railway up`, which works but is manual.
+Two things had to line up for that, and they are worth recording because neither
+is obvious from the error Railway gives. It answers *"User does not have access to
+the repo"* for both:
 
-The repository was transferred to the Railway account owner's GitHub for exactly
-this reason — the App cannot be granted access to a repository the account does
-not own.
+- **The Railway account must own the repository.** Its GitHub App cannot be
+  granted access to someone else's repository, and collaborator access does not
+  substitute. This repository was transferred for that reason.
+- **The App must then be granted access to it.** Connecting GitHub to the Railway
+  account is not the same step — the account settings page has a separate
+  *Configure repo access* link that hands the App the specific repository.
+
+If a deploy ever needs starting by hand, `railway up` from a clone still works.
 
 **First deploy of a new environment**, in this order:
 

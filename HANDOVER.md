@@ -150,7 +150,7 @@ styling choice.
    pinned visitors unable to reach the HTTP-only old site at all.
 8. Switch `CONTACT_FROM` and `CONTACT_TO` when the mailbox exists.
 
-### One step left on the deploy pipeline
+### The deploy pipeline — resolved
 
 Pushes did not reach Railway, so every deploy was manual. The cause was not what
 it first looked like. Railway kept answering *"User does not have access to the
@@ -163,20 +163,20 @@ commits, all three branches and the old URLs as redirects. `MuhammadZainDev` kep
 push access automatically, as a collaborator rather than an owner, which is the
 right arrangement now that the client's side holds it.
 
-That removed the blocker but not the last step, because the Railway account still
-has no GitHub connection at all — `githubRepos` answers `Not Authorized`. That
-one is a dashboard action; a CLI session cannot authorize an OAuth connection.
+That removed one of two blockers. The second was that Railway's GitHub App had
+not been granted the repository, which is a separate step from connecting GitHub
+to the Railway account — the account was already connected as `faisalkasbatiakd`
+while the App still could not see any repository. Railway reports both failures
+with the same message, which is what made this take three attempts to pin down.
 
-**The one step remaining**, in the Railway dashboard:
+Granting it lives under **Account settings → Integrations → GitHub → Configure
+repo access**, not in the service's own settings, and it is a dashboard action: a
+CLI session cannot authorize it.
 
-1. Open the project → the **web** service → **Settings** → **Source**
-2. Connect GitHub if it is not linked yet, and authorize Railway
-3. Where it offers **Configure GitHub App** (or *"can't find your repo?"*), grant
-   the App access to `akd-hospitality`, and save
-4. Select `faisalkasbatiakd/akd-hospitality`, branch `main`
-
-Then pushing to `main` deploys. Until then, `railway up` from a clone deploys
-manually and works — it is how the current build was shipped.
+**Both are now done.** The `web` service is connected to
+`faisalkasbatiakd/akd-hospitality@main`, and pushing to `main` deploys. If a
+deploy ever needs starting by hand, `railway up` from a clone still works — it is
+how builds were shipped while this was being sorted out.
 
 There was briefly a GitHub Actions workflow doing the deploy from the repository
 side instead. It is gone, because Railway's own integration is simpler and
