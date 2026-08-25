@@ -209,12 +209,43 @@ to a CLI session, so that token is a dashboard action too.
    was worth doing immediately rather than at launch, because the recovery
    window only starts when it is switched on. The site was re-checked afterwards:
    all 13 routes returned 200.
-10. **Delete the empty Railway project.** There are two named `akd-hospitality`:
-    `fd12179c-9573-46b1-913d-16596ef3c6a2` holds `web` and `Postgres` and is
-    live; `126e9fc2-99a7-41b7-94a0-44fd085a400a` has no services and is the one
-    to remove.
+10. ~~Delete the empty Railway project.~~ **Done.** It turned out not to be
+    empty: no services, but two orphaned volumes from the first deployment
+    attempt, holding 153 MB (104 MB of old Postgres data, 49 MB of storage) and
+    attached to nothing. Volumes are billed per GB whether a service uses them
+    or not, so this was quiet spend rather than clutter. Deleted after confirming
+    by ID which project held the live services — both carried the same name, and
+    only one had `web` and `Postgres`. The live site was re-checked afterwards.
 11. **Rotate the credentials that have been shared in chat:** the Resend API
     key, and both Postgres passwords.
+12. **Verify an upload on production.** See below — the one real gap left.
+
+### The one thing still unverified: uploads
+
+Nothing has ever been uploaded through the dashboard on production. Checked
+directly against the live database: 0 director photographs, 0 uploaded images
+(all 21 are Unsplash URLs), and all 110 documents served from the repository
+rather than the volume.
+
+So the path that matters most to the client — the thing they will do first — has
+never actually run in production. The pieces all check out on inspection:
+
+- `web-volume` is mounted at **`/app/storage`**, which is exactly where the code
+  writes: `join(process.cwd(), "storage", …)`, and the container's working
+  directory is `/app`
+- the file route reads through the same root and the same `safeUploadKey`
+- no permission or path errors appear anywhere in the deploy logs
+- traversal, encoded traversal, a disallowed extension and a non-uploads prefix
+  are all refused with a 404 on the live route
+
+But inspection is not a test. **Before delivery, upload one image** — Dashboard →
+Board & officers → any director → save — and confirm it appears on
+`/governance`. That exercises the write, the database row and the read route in
+one go.
+
+Then it is worth redeploying and checking the photograph is still there, because
+that is the part a container filesystem gets wrong: without a working volume
+mount the file survives until the next deploy and then silently vanishes.
 
 ### Optional
 
