@@ -234,3 +234,63 @@ to specific pages of the annual report, and the going-concern notice is publishe
 above them rather than after them. A free-text field over audited numbers invites
 a typo that misstates the Company's position. They change once a year, with the
 annual report, and should change through a release.
+
+---
+
+## 7. Who owns what
+
+Recorded because it is not visible from the code, and because two of these moved
+during the project.
+
+### GitHub
+
+| | |
+| --- | --- |
+| Repository | `faisalkasbatiakd/akd-hospitality` — **private**, default branch `main` |
+| Owner / admin | `faisalkasbatiakd` (the client's side) |
+| Collaborator | `MuhammadZainDev` — **write**: can push and open PRs, cannot change settings, delete the repo, or manage access |
+| Old path | `MuhammadZainDev/akd-hospitality` → redirects here. Old clones and links keep working |
+
+It was transferred on 25 August 2026. Ownership had to sit with the Railway
+account holder, because Railway's GitHub App cannot be granted a repository the
+account does not own.
+
+### Railway
+
+| | |
+| --- | --- |
+| Account | Faisal Kasbati — `faisalkasbati.akd@gmail.com` |
+| GitHub integration | connected as `faisalkasbatiakd`, App granted this repository |
+| **Live project** | `fd12179c-9573-46b1-913d-16596ef3c6a2` — services `web` + `Postgres`, volumes `web-volume` + `postgres-volume` |
+| Empty project | `126e9fc2-99a7-41b7-94a0-44fd085a400a` — no services. **Delete this one** |
+| Deploy source | `faisalkasbatiakd/akd-hospitality@main` |
+| Host | `akd-hospitality.up.railway.app` — generated, temporary |
+
+Both projects carry the same name, so **always act on the ID**, never the name.
+Zain has no Railway account on this project; everything Railway-side goes through
+Faisal's login.
+
+### Everything else
+
+| | |
+| --- | --- |
+| Dashboard login | `admin@akdhospitality.com` — one account, no self-registration, no email reset. Password is not recorded here |
+| Contact form | `CONTACT_TO=faisalkasbati.akd@gmail.com`. Resend's sandbox only delivers to the account owner, so the Resend account is on that address too |
+| Real domain | `akdhospitality.com` — the client's, still serving the previous site |
+| Working copy | `C:\Users\zain\Documents\GitHub\akd-hospitality`, remote already repointed |
+
+### What this means from here
+
+- **Zain can push; Faisal has to approve.** Railway holds a collaborator's commit
+  at `NEEDS_APPROVAL`. Normal, and worth keeping.
+- **Zain cannot change repo settings or manage access.** If someone else needs
+  adding, or a branch protecting, Faisal does it.
+- **Nothing on Railway is reachable without Faisal's login** — variables, volumes,
+  backups, the domain. Anything needed there has to be either scripted through
+  the CLI or done by him.
+- **If the client's own staff take this over,** the clean end state is: transfer
+  the repo again to a GitHub organisation the company controls, move the Railway
+  project into a company workspace, and reissue the dashboard login on a company
+  address. All three currently sit with one person.
+- **`NEXT_PUBLIC_SITE_URL` still names the Railway host.** It has to change with
+  the domain, at the same time as `NEXT_PUBLIC_NOINDEX` comes off.
