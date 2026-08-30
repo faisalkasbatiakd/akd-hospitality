@@ -268,6 +268,71 @@ annual report, and should change through a release.
 
 ---
 
+## 6b. The cPanel hosting, and why the site stays on Railway
+
+The client also has cPanel hosting for `akdhospitality.com`, and the question came
+up of moving the site there and dropping Railway. It was audited properly rather
+than guessed at, through a read-only API token since revoked.
+
+### What is actually on it
+
+Account `hospitality`, plan `globalta_Starter Plan`, reseller `globalta`, shared
+IP `103.138.189.54`.
+
+| | Limit | In use |
+| --- | --- | --- |
+| Disk | 5 GB | 168 MB |
+| Inodes | unlimited | 5,844 |
+| Memory | 2 GB | — |
+| CPU | 1 core | — |
+| Processes / entry processes | 100 / 30 | — |
+| MySQL databases | 3 | 1 (`hospitality_wp259`) |
+| **PostgreSQL databases** | **3, 4.95 GB** | 0 |
+| Email accounts | 15 | **0** |
+| Subdomains / addon domains | 2 / 1 | 0 |
+
+Node.js hosting (`lvenodejssel`), PostgreSQL, SSH, AutoSSL and cron are all
+enabled. **So the host can technically run this app** — an early assumption that
+it could not was wrong, and worth correcting rather than quietly dropping.
+
+The current site is **WordPress**, not the ASP.NET application the legacy `.aspx`
+redirects were built for. Those redirects still earn their place: the old paths
+are printed inside four filed documents, whatever software served them.
+
+### Why it stays on Railway anyway
+
+Capability is not suitability. Moving would cost:
+
+- **The build.** Next.js builds routinely want 2–4 GB; this one has 2 GB and one
+  core, shared with WordPress. Building on the server risks running out of
+  memory, so builds would have to happen locally and be uploaded — turning every
+  deploy into a manual file transfer.
+- **Push-to-deploy**, which took real work to establish and would be replaced by
+  SSH, upload, install, build, restart.
+- **Point-in-time recovery, volume snapshots, health checks and rollback**, none
+  of which shared hosting offers. Backups would fall back to cPanel's own plus
+  `npm run db:backup`.
+- **Two unknowns** that would have to be settled first: the Node version offered
+  by the selector, and the PostgreSQL version — the migrations were generated
+  against 18, and cPanel commonly ships far older.
+
+Against that, the only real gain is removing the Railway bill. Not worth it for a
+listed company's corporate site.
+
+### What cPanel is for
+
+**Email.** The whole mail stack already lives there — MX, SPF, DKIM, DMARC,
+`autodiscover`, `autoconfig`, `webmail`, `webdisk`, `cpcalendars` — all pointing
+at `103.138.189.54`. Any DNS change for the website must leave every one of those
+records alone, or the client's email stops.
+
+`info@akdhospitality.com` does not exist yet: the account has **zero** mailboxes
+against a limit of 15. Creating it is a two-minute job in **Email → Email
+Accounts**, and it is unrelated to where the website runs. Whoever creates it
+owns the password.
+
+---
+
 ## 7. Who owns what
 
 Recorded because it is not visible from the code, and because two of these moved
