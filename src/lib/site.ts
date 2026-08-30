@@ -1,21 +1,31 @@
 /**
  * Canonical site configuration for metadata.
  *
- * The canonical host is akdhospitality.com without www. Every canonical link,
- * Open Graph URL, sitemap entry and robots directive is derived from this one
- * value, so the whole site moves by changing it in one place.
+ * The canonical host is www.akdhospitality.com. Every canonical link, Open Graph
+ * URL, sitemap entry and robots directive derives from this one value, so the
+ * whole site moves by changing it in one place.
  *
- * Pick one host and stay on it: serving the same pages on both the apex and the
- * www subdomain splits ranking signals between two URLs. Once DNS is in place,
- * point www.akdhospitality.com at a 301 redirect to the apex rather than
- * letting both resolve.
+ * The www subdomain rather than the apex, and not by preference. Railway serves
+ * custom domains over a CNAME, and a CNAME is not valid at the apex of a zone -
+ * only providers offering ALIAS records or CNAME flattening get around that, and
+ * this domain's DNS is cPanel's Zone Editor, which offers neither. So www is the
+ * host that can actually point here, and the apex stays on the old host issuing
+ * a 301 to www.
  *
- * NEXT_PUBLIC_SITE_URL overrides this per environment (Vercel preview, staging,
- * production). The fallback is the production host so that a plain build still
- * emits correct absolute URLs.
+ * Canonical follows what serves the pages; it cannot point at a host that only
+ * redirects. Pick one and stay on it - letting both resolve to the same pages
+ * splits ranking signals between two URLs.
+ *
+ * The apex redirect has to preserve the path. Four filed documents print
+ * "http://akdhospitality.com/Investors.aspx", so that URL must survive two hops
+ * to /investors: apex to www at the old host, then the legacy rewrite in
+ * next.config.ts.
+ *
+ * NEXT_PUBLIC_SITE_URL overrides this per environment. The fallback is the
+ * production host so a plain build still emits correct absolute URLs.
  */
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://akdhospitality.com"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.akdhospitality.com"
 ).replace(/\/$/, "");
 
 /**

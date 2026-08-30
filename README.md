@@ -143,12 +143,22 @@ It is read at **build time**, so changing it needs a redeploy.
 > **Remove this flag the moment the client points `akdhospitality.com` here.**
 > Left in place, the launched site stays invisible to search.
 
-**Canonical host** is `https://akdhospitality.com` — apex, no `www`. It is
-derived from one value in `src/lib/site.ts` and feeds every canonical link,
-Open Graph URL, sitemap entry and robots directive.
+**Canonical host** is `https://www.akdhospitality.com`. It is derived from one
+value in `src/lib/site.ts` and feeds every canonical link, Open Graph URL,
+sitemap entry and robots directive.
 
-Point `www.akdhospitality.com` at a **301 redirect to the apex**. Letting both
-hosts resolve splits ranking signals between two URLs for the same pages.
+The `www` subdomain rather than the apex, and not by preference. Railway serves
+custom domains over a CNAME, which is not valid at the apex of a zone unless the
+DNS provider offers ALIAS records or CNAME flattening — and this domain runs on
+cPanel's Zone Editor, which offers neither. So `www` is the host that can point
+here, and the apex stays on the old host issuing a **301 to `www`**.
+
+That redirect must **preserve the path**. Four filed documents print
+`http://akdhospitality.com/Investors.aspx`, and that URL has to survive two hops
+to `/investors`: apex to `www` at the old host, then the legacy rewrite here.
+
+Letting both hosts serve the same pages would split ranking signals between two
+URLs, which is why one redirects rather than answering.
 
 **Legacy URLs.** `next.config.ts` redirects the old ASP.NET paths. This matters:
 `http://akdhospitality.com/Investors.aspx` is printed inside four filings,
