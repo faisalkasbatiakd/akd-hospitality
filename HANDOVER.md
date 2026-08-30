@@ -218,9 +218,10 @@ to a CLI session, so that token is a dashboard action too.
     only one had `web` and `Postgres`. The live site was re-checked afterwards.
 11. **Rotate the credentials that have been shared in chat:** the Resend API
     key, and both Postgres passwords.
-12. **Verify an upload on production.** See below — the one real gap left.
+12. ~~Verify an upload on production.~~ **Done** — see below. Uploads write to
+    the volume, serve, render, and survive a redeploy.
 
-### The one thing still unverified: uploads
+### Uploads — verified
 
 Nothing has ever been uploaded through the dashboard on production. Checked
 directly against the live database: 0 director photographs, 0 uploaded images
@@ -238,14 +239,22 @@ never actually run in production. The pieces all check out on inspection:
 - traversal, encoded traversal, a disallowed extension and a non-uploads prefix
   are all refused with a 404 on the live route
 
-But inspection is not a test. **Before delivery, upload one image** — Dashboard →
-Board & officers → any director → save — and confirm it appears on
-`/governance`. That exercises the write, the database row and the read route in
-one go.
+Inspection is not a test, so it was tested. A photograph was uploaded through the
+dashboard against one director:
 
-Then it is worth redeploying and checking the photograph is still there, because
-that is the part a container filesystem gets wrong: without a working volume
-mount the file survives until the next deploy and then silently vanishes.
+1. the row was written — `directors.image_path` = `uploads/6cccdb64….jpg`
+2. the file served — `200`, `image/jpeg`, 11,454 bytes
+3. it rendered on `/governance` in place of that director's initials
+4. **the service was then redeployed, and it was still there** — same status,
+   same byte count, still rendering
+
+Step 4 is the one that mattered. A container filesystem loses its writes on
+restart, so a broken volume mount looks perfectly fine until the next deploy
+quietly takes the file with it. It survived, which means `/app/storage` is really
+the volume and uploads persist.
+
+The test photograph is still on Mr. Nadeem Saulat Siddiqui and should be replaced
+or removed once the Company supplies real ones.
 
 ### Optional
 
