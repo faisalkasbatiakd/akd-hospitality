@@ -6,8 +6,9 @@ What was asked, what was decided, and what was done about it. Written 25 August
 Read this alongside the [README](README.md), which carries the deploy runbook,
 the security notes and the backup procedure.
 
-Live at **https://akd-hospitality.up.railway.app** — a temporary host. The real
-domain is the client's to point.
+**Live at https://www.akdhospitality.com** since 31 August 2026. The apex
+redirects to it. `akd-hospitality.up.railway.app` still answers and is kept as a
+way in that does not depend on DNS.
 
 ---
 
@@ -274,6 +275,92 @@ to specific pages of the annual report, and the going-concern notice is publishe
 above them rather than after them. A free-text field over audited numbers invites
 a typo that misstates the Company's position. They change once a year, with the
 annual report, and should change through a release.
+
+---
+
+## 5b. The launch, 31 August 2026
+
+The site went live on the real domain. What that took, and what it left behind.
+
+### How the hosts are arranged
+
+| Host | Serves |
+| --- | --- |
+| `www.akdhospitality.com` | **the site**, on Railway. Canonical |
+| `akdhospitality.com` | 301 to `www`, from the old cPanel host |
+| `akd-hospitality.up.railway.app` | still answers; a DNS-independent way in |
+
+`www` and not the apex because Railway serves custom domains over a CNAME, and a
+CNAME is not valid at a zone apex. The DNS here is the hosting provider's, which
+offers no ALIAS record or CNAME flattening, so the apex cannot point at Railway
+at all. It redirects instead.
+
+### The DNS was not straightforward
+
+cPanel's Zone Editor turned out to be able to **add** records but not **change**
+the existing `www` one. A new `TXT` propagated to the authoritative nameservers
+within about twenty minutes; the `www` CNAME did not move for over an hour,
+through both an edit and a remove-then-add. It eventually took, but not on any
+schedule worth relying on.
+
+Worth knowing before touching DNS again: expect adds to work, expect edits to
+existing records to be slow or silent, and verify against
+`ns1.mysecurecloudhost.com` directly rather than a public resolver — a public
+resolver's cache tells you nothing about whether the change actually landed.
+
+### The apex redirect lives in .htaccess
+
+`/home/hospitality/public_html/.htaccess` on the cPanel account, in a block
+marked `# BEGIN apex-to-www`. The previous file is saved beside it as
+`.htaccess.before-railway-cutover`, so a rollback is a file rename.
+
+Three things about that block are deliberate:
+
+- **It sits above the SpeedyCache rules.** A cached page served earlier in the
+  chain would never reach the redirect.
+- **It preserves the path.** Verified end to end:
+  `http://akdhospitality.com/Investors.aspx` → 301 → `www` → 308 → `/investors`
+  → 200. That URL is printed inside four filed documents, including the FY2025
+  AGM notice that went to every shareholder on the register.
+- **It excludes `/.well-known/`**, so cPanel AutoSSL can still validate this
+  hostname. Redirect that path and the certificate here eventually lapses — and
+  then the HTTPS redirect fails before it can redirect anyone. Confirmed: that
+  path returns 404, not 301.
+
+> **This creates a dependency that is easy to miss.** The apex works only because
+> the cPanel hosting is still running. Cancel that hosting and
+> `akdhospitality.com` stops resolving to anything useful, while `www` carries on
+> fine. The hosting is needed for email anyway, but the two are now linked.
+
+### Verified after the cutover
+
+All 13 routes 200. All 9 sitemap URLs 200. A filing serves as `application/pdf`.
+The uploaded director photograph still serves from the volume. `noindex` is gone
+from the pages, the header and `robots.txt`; canonical and sitemap both name
+`www.akdhospitality.com`. `/admin` still carries `noindex` and `no-store`.
+
+Email untouched and checked separately: MX unchanged, DKIM present, SPF present,
+`autodiscover` resolving, webmail answering 200.
+
+### Still not done, and one of them matters a lot
+
+1. **Railway is on the Trial plan.** A listed company's site is now on the real
+   domain, on a plan that stops when its credit runs out. **Upgrade to Hobby.**
+   This is the largest single risk in the deployment right now.
+2. **`Strict-Transport-Security` is still not set**, and this was a judgement
+   call rather than an oversight. Both hosts now have working HTTPS, so it is
+   safe in principle - but the first days after a cutover are exactly when a
+   rollback is most likely, and HSTS is the one header a browser remembers after
+   you remove it. Worth adding in a week, ramping the max-age rather than
+   starting at a year.
+3. **The Cloudflare zone exists but is unused.** It was created with all 27
+   records mirrored and verified, then not needed once the CNAME propagated. The
+   nameservers were never switched. It is harmless where it is, and it is the
+   route to take if the apex should ever point at Railway directly - Cloudflare's
+   CNAME flattening is what makes that possible, and it would remove the cPanel
+   dependency for the apex.
+4. **The old WordPress site is still in `public_html`.** Unreachable now except as
+   the thing serving the redirect. Left deliberately: it is the rollback.
 
 ---
 
