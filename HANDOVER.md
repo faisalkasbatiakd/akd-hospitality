@@ -140,6 +140,25 @@ styling choice.
    `CONTACT_TO` change together — both, or neither.
 4. **Supply photography** when they have it: the seven directors, and any real
    property images to replace the Unsplash set.
+5. **Four things to check in the ESG and DE&I policies now published at `/esg`.**
+   The text was reproduced exactly as supplied and none of this was changed -
+   the policies are the Board's - but each is worth a decision:
+
+   - **A target date has passed.** The policy commits to *"By 2025, 100% of
+     lighting across our properties will be converted to LED"*. It is now
+     August 2026. Published as a future commitment, a lapsed date invites the
+     question of whether it was met. Either re-date it or state that it was.
+   - **The entity name differs.** The document is headed *"AKD Hospitality
+     Group"*; the listed entity is *"AKD Hospitality Limited"*, which is what the
+     rest of the site and every filing says.
+   - **The commitments and the reported figures are far apart.** The FY2025
+     annual report records Scope 2 emissions of 1 ton, 1,500 kWh of energy,
+     1,000 USG of water and four employees. The policy commits to audits across
+     *"all properties"*, ISO certification at *"all properties"*, 20 hours of
+     training per employee per year, 1% of profits to community initiatives and
+     four community events per property per year. A shareholder reads both.
+   - **GDPR is cited three times.** Unusual for a company operating in Pakistan.
+     Not wrong if deliberate, but worth confirming it is deliberate.
 
 ### Ours, once unblocked
 
