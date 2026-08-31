@@ -12,6 +12,7 @@
     "db:studio": "node scripts/with-env.mjs drizzle-kit studio",
     "db:seed": "node scripts/with-env.mjs tsx scripts/seed.ts",
     "db:backup": "node scripts/with-env.mjs node scripts/backup.mjs",
+    "policies:import": "node scripts/import-policies.mjs",
     "db:admin": "node scripts/with-env.mjs tsx scripts/create-admin.ts",
     "db:migrate:prod": "drizzle-kit migrate",
     "db:seed:prod": "tsx scripts/seed.ts",

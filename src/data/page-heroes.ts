@@ -35,6 +35,10 @@ export const pageHeroes: Record<string, PageHeroMedia> = {
     image: u("photo-1759323050124-eb669cec0b72"),
     alt: "Aerial view of the Karachi coastline",
   },
+  "/esg": {
+    image: u("photo-1441974231531-c6227db76b6e"),
+    alt: "Sunlight through the canopy of a dense forest",
+  },
 };
 
 /** Used by the legal and utility pages. */

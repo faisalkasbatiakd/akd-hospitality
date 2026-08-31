@@ -33,6 +33,7 @@ npx eslint src     # lint
 | `/investors` | FY2025 snapshot, six-year record, shareholding pattern, 73 filings |
 | `/media` | Latest AGM and corporate briefing, 2021 corporate actions, meeting record, shareholder services, 23 filings |
 | `/contact` | Enquiry routing, company details, map, contact form |
+| `/esg` | The ESG Policy and the DE&I policies in full, each commitment tagged with the UN goals it serves |
 | `/terms-of-use`, `/disclaimer` | Legal, with in-page contents and per-clause anchors |
 | `/sitemap` | Human-readable site index |
 
@@ -57,6 +58,25 @@ Company's position, so the notice is published above the numbers, not after them
 
 Data files carry their sources in comments — see `src/data/financials.ts`,
 `src/data/governance.ts` and `src/data/media-notices.ts`.
+
+**Policy documents are generated, not transcribed.** `src/data/esg-policy.ts`
+comes from the Word files in `content-source/`:
+
+```bash
+npm run policies:import
+```
+
+Seventy-five board-approved commitments typed out by hand is a quiet way to
+publish something the Board did not approve, so a script reads the `.docx`
+instead. When a revised policy arrives, replace the file, re-run, and the diff
+shows exactly what the Company changed. Two presentational liberties are taken
+and documented in the generated file: a trailing `(SDG 7, 13)` becomes a label
+rather than text, and decorative emoji come off three headings in favour of the
+site's own icons.
+
+These are not in the database on purpose, for the same reason as the audited
+figures: a free-text field over a policy commitment invites an edit nobody
+approved. They change through a release.
 
 ## The document archive
 

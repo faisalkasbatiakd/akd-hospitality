@@ -40,7 +40,9 @@ export async function EsgFramework() {
   };
 
   return (
-    <section className="border-y border-border bg-background">
+    // Anchored so the ESG policy page can link straight to the framework this
+    // section renders, rather than to the top of a long About page.
+    <section id="esg" className="scroll-mt-10 border-y border-border bg-background">
       <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
         {/* Heading */}
         <div className="mx-auto max-w-3xl text-center" data-aos="fade-up">
