@@ -372,12 +372,22 @@ Email untouched and checked separately: MX unchanged, DKIM present, SPF present,
    rollback is most likely, and HSTS is the one header a browser remembers after
    you remove it. Worth adding in a week, ramping the max-age rather than
    starting at a year.
-3. **The Cloudflare zone exists but is unused.** It was created with all 27
-   records mirrored and verified, then not needed once the CNAME propagated. The
-   nameservers were never switched. It is harmless where it is, and it is the
-   route to take if the apex should ever point at Railway directly - Cloudflare's
-   CNAME flattening is what makes that possible, and it would remove the cPanel
-   dependency for the apex.
+3. ~~The Cloudflare zone.~~ **Deleted.** It was created during the cutover as a
+   way around cPanel's inability to change the `www` record, with all 27 records
+   mirrored and verified - and then the CNAME propagated on its own and it was
+   never needed. The nameservers were never switched; the zone sat at `pending`
+   and never served a single query.
+
+   It was kept briefly on the argument that it was the route to pointing the apex
+   at Railway directly. That argument does not hold: switching nameservers needs
+   access at GoDaddy, which is the client's registrar and not something we or the
+   client's own panel reach - the same wall that made cPanel the only option in
+   the first place. An unused zone plus a live API token is a liability, not an
+   asset, so both are gone.
+
+   If the apex should ever need to point at Railway directly, recreating this is
+   about ten minutes: the record list comes straight from cPanel's zone, which
+   still holds all of it.
 4. **The old WordPress site is still in `public_html`.** Unreachable now except as
    the thing serving the redirect. Left deliberately: it is the rollback.
 
