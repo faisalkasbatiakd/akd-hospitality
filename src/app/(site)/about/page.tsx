@@ -109,7 +109,6 @@ export default async function AboutPage() {
       body: stage?.body ?? [],
       strategy: lists.strategy,
       workstreams: lists.workstreams,
-      formatsUnderStudy: lists.formatsUnderStudy,
     },
   };
   const aboutMedia = {
@@ -327,20 +326,29 @@ export default async function AboutPage() {
             description="The Company's current activity under its tourism mandate, as reported in the FY2025 annual report and the Corporate Briefing Session of November 2025."
           />
 
-          <div
-            className="relative mt-10 h-48 overflow-hidden rounded-2xl sm:h-60 lg:h-72"
-            data-aos="fade-up"
-          >
-            <Image
-              src={aboutSectionMedia.marketAnalysis.url}
-              alt={aboutSectionMedia.marketAnalysis.alt}
-              fill
-              sizes="100vw"
-              className="object-cover"
-            />
-          </div>
-
+          {/*
+            The photograph sits beside the list rather than in a band above it.
+            The right-hand column used to hold the accommodation formats; with
+            those gone it was empty, and a full-width image over a half-width
+            list left the section lopsided and far taller than its content
+            warranted. Side by side, it reads as one block and the section is
+            about a third shorter.
+          */}
           <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-16">
+            <div
+              className="relative h-56 overflow-hidden rounded-2xl sm:h-72 lg:h-auto lg:min-h-[20rem]"
+              data-aos="fade-up"
+            >
+              <Image
+                src={aboutSectionMedia.marketAnalysis.url}
+                alt={aboutSectionMedia.marketAnalysis.alt}
+                fill
+                // Half the viewport once the grid splits, full width below it.
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
+              />
+            </div>
+
             <div>
               <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-navy">
                 Market analysis under way
@@ -370,24 +378,6 @@ export default async function AboutPage() {
                   </li>
                 ))}
               </ul>
-            </div>
-
-            <div className="space-y-10">
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-navy">
-                  Formats under feasibility
-                </h3>
-                <ul className="mt-4 flex flex-wrap gap-2">
-                  {company.currentStage.formatsUnderStudy.map((format) => (
-                    <li
-                      key={format}
-                      className="rounded-full border border-border bg-background px-3.5 py-1.5 text-[13px] text-brand-navy transition-colors duration-300 hover:border-brand-accent/50"
-                    >
-                      {format}
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight, Quote } from "lucide-react";
+import { Quote } from "lucide-react";
 
 import { getSetting } from "@/lib/content";
 
@@ -79,16 +78,6 @@ export async function ChairpersonReview() {
               </span>
             </figcaption>
           </figure>
-
-          <Link
-            href="/investors"
-            className="group mt-6 inline-flex items-center gap-2 py-2.5 text-sm font-medium text-brand-accent"
-          >
-            <span className="underline-offset-4 group-hover:underline">
-              Read the full review in the annual report
-            </span>
-            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-          </Link>
         </div>
 
         {/* Board facts, in place of a portrait */}

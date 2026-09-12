@@ -51,10 +51,18 @@ careers section, because the FY2025 annual report records four employees and no
 vacancies. Named directors have initials avatars, not stock portraits: putting a
 stranger's face beside a real person's name misrepresents them.
 
-**Financial figures appear in one place only.** They live on `/investors`, under
-the auditor's Material Uncertainty Relating to Going Concern notice. Showing a
-profit and a rising asset base without that context would misrepresent the
-Company's position, so the notice is published above the numbers, not after them.
+**Financial figures appear in one place only**, on `/investors`, so they are not
+repeated elsewhere with different framing.
+
+They were published under the auditor's Material Uncertainty Relating to Going
+Concern notice until September 2026, when the client asked for that notice to be
+removed. The concern was put to them before it was done: the page shows a profit
+of Rs 1.27 m and total assets up from Rs 32.13 m to Rs 45.04 m, while the
+auditor's report on those same statements carries a Material Uncertainty
+Relating to Going Concern (p. 84) and the Company's own note 1.2 records that
+operations in its principal line of business "are at halt since long". The
+client confirmed the removal. The notice text remains in
+`src/data/financials.ts` should it ever be wanted back.
 
 Data files carry their sources in comments — see `src/data/financials.ts`,
 `src/data/governance.ts` and `src/data/media-notices.ts`.

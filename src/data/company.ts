@@ -111,7 +111,6 @@ export const company = {
       { value: "1936", label: "Incorporated" },
       { value: "2021", label: "Tourism mandate adopted" },
       { value: "AKDHL", label: "PSX symbol" },
-      { value: "715", label: "Shareholders at 30 June 2025" },
     ],
   },
 

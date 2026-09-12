@@ -297,6 +297,15 @@ export const workstreams = pgTable("workstreams", {
   sort: integer("sort").notNull().default(0),
 });
 
+/**
+ * Accommodation formats the Company lists as under feasibility.
+ *
+ * Seeded but **not rendered anywhere** since September 2026, when the block was
+ * removed from the About page at the client's request. The table and its rows
+ * are kept rather than dropped: the content came from the FY2025 annual report,
+ * dropping it would need a migration, and restoring the section later is a
+ * matter of reading it again. Nothing reads it today - see src/lib/content.ts.
+ */
 export const accommodationFormats = pgTable("accommodation_formats", {
   id: serial("id").primaryKey(),
   label: text("label").notNull(),

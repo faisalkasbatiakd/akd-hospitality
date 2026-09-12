@@ -91,7 +91,12 @@ export async function Overview() {
             </div>
 
             {/* Corporate facts */}
-            <dl className="mt-6 grid grid-cols-2 gap-y-5 sm:grid-cols-4 sm:divide-x sm:divide-border">
+            {/*
+              Three across from the small breakpoint up. Kept at two on the
+              narrowest screens, where three columns would squeeze "Tourism
+              mandate adopted" into a stack of single words.
+            */}
+            <dl className="mt-6 grid grid-cols-2 gap-y-5 sm:grid-cols-3 sm:divide-x sm:divide-border">
               {currentStage.facts.map((fact, index) => (
                 <div key={fact.label} className={index > 0 ? "sm:pl-5" : ""}>
                   <dt className="text-[1.75rem] font-medium leading-none text-brand-accent">

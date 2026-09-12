@@ -1,12 +1,11 @@
 import Image from "next/image";
-import { AlertTriangle, PieChart, TrendingUp, Wallet } from "lucide-react";
+import { PieChart, TrendingUp, Wallet } from "lucide-react";
 
 import { iconTint } from "@/lib/icon-tints";
 import { cn } from "@/lib/utils";
 import {
   capital,
   financialSnapshot,
-  goingConcernNotice,
   shareholding,
   sixYearData,
 } from "@/data/financials";
@@ -18,40 +17,19 @@ const snapshotIcons = [Wallet, TrendingUp, PieChart];
 /**
  * Financial snapshot, six-year record and shareholding pattern.
  *
- * This is the one place on the site where the numbers belong, because it is the
- * only place they can be given their proper context: the going-concern notice
- * sits immediately above them.
+ * This is the one place on the site where the numbers appear, so that they are
+ * not repeated with different framing elsewhere.
+ *
+ * The auditor's Material Uncertainty Relating to Going Concern notice used to
+ * sit above these figures and was removed in September 2026 at the client's
+ * request. The notice text is still in src/data/financials.ts if it is ever
+ * wanted back.
  */
 export async function FinancialOverview() {
   const images = await getImages();
   const investorMedia = images.investorMedia;
   return (
     <>
-      {/* Going concern first, so the figures below are never read alone */}
-      <section className="border-t border-border bg-background">
-        <div className="mx-auto max-w-7xl px-6 pt-16 md:pt-20">
-          <div
-            className="flex gap-4 rounded-2xl border border-amber-300/70 bg-amber-50/60 p-6 lg:p-7"
-            data-aos="fade-up"
-          >
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700">
-              <AlertTriangle className="size-5" aria-hidden />
-            </span>
-            <div>
-              <h2 className="text-base font-medium text-brand-navy">
-                {goingConcernNotice.title}
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-foreground/75">
-                {goingConcernNotice.body}
-              </p>
-              <p className="mt-3 text-xs text-muted-foreground">
-                {goingConcernNotice.source}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Snapshot */}
       <section className="bg-background">
         <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">

@@ -237,7 +237,7 @@ export const getHero = cached("hero", TAGS.page, async () => {
 
 /** Lists that belong to the About page. */
 export const getAboutLists = cached("about-lists", TAGS.page, async () => {
-  const [strategy, pillars, metrics, policies, info, links, work, formats, biz] =
+  const [strategy, pillars, metrics, policies, info, links, work, biz] =
     await Promise.all([
       db
         .select()
@@ -252,10 +252,6 @@ export const getAboutLists = cached("about-lists", TAGS.page, async () => {
         .orderBy(asc(t.companyInformation.sort)),
       db.select().from(t.externalLinks).orderBy(asc(t.externalLinks.sort)),
       db.select().from(t.workstreams).orderBy(asc(t.workstreams.sort)),
-      db
-        .select()
-        .from(t.accommodationFormats)
-        .orderBy(asc(t.accommodationFormats.sort)),
       db.select().from(t.businesses).orderBy(asc(t.businesses.sort)),
     ]);
 
@@ -276,7 +272,6 @@ export const getAboutLists = cached("about-lists", TAGS.page, async () => {
       title: w.title,
       description: w.description,
     })),
-    formatsUnderStudy: formats.map((f) => f.label),
     businesses: biz.map((b) => ({
       title: b.title,
       description: b.description,

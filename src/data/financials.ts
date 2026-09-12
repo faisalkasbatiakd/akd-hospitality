@@ -4,10 +4,10 @@
  * Every figure is taken from the FY2025 annual report and is cited to a page.
  * Nothing here is derived or estimated.
  *
- * The going-concern notice is published alongside the numbers on purpose: the
- * auditor's report carries a Material Uncertainty Relating to Going Concern
- * (p. 84), and showing a profit and a rising asset base without that context
- * would misrepresent the Company's position.
+ * `goingConcernNotice` below is no longer rendered. It was published above the
+ * figures until September 2026 and removed at the client's request. The text is
+ * kept here, sourced and ready, so restoring it is a matter of rendering it
+ * again rather than rewriting it.
  */
 
 export const financialSnapshot = {
