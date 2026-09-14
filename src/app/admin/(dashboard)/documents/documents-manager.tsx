@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { uploadFailureMessage } from "../_lib/upload-error";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -428,15 +430,22 @@ function AddDocumentDialog({
             const data = new FormData(form);
             data.set("groupKey", groupKey);
             setBusy(true);
-            const result = await uploadDocument(data);
-            setBusy(false);
-            if (result.ok) {
-              toast.success("Document added");
-              form.reset();
-              onOpenChange(false);
-              onDone();
-            } else {
-              toast.error(result.error);
+            try {
+              const result = await uploadDocument(data);
+              if (result.ok) {
+                toast.success("Document added");
+                form.reset();
+                onOpenChange(false);
+                onDone();
+              } else {
+                toast.error(result.error);
+              }
+            } catch (error) {
+              // A request refused before the action runs throws rather than
+              // returning, so without this the dialog hangs and says nothing.
+              toast.error(uploadFailureMessage(error));
+            } finally {
+              setBusy(false);
             }
           }}
           className="space-y-4"

@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { uploadFailureMessage } from "../_lib/upload-error";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -400,10 +402,15 @@ function SlotDialog({
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             setBusy(true);
-            await onSubmit(formData, !hasFile);
-            setBusy(false);
-            setPreview(null);
-            setHasFile(false);
+            try {
+              await onSubmit(formData, !hasFile);
+              setPreview(null);
+              setHasFile(false);
+            } catch (error) {
+              toast.error(uploadFailureMessage(error));
+            } finally {
+              setBusy(false);
+            }
           }}
           className="space-y-4"
         >
@@ -517,9 +524,14 @@ function SlideDialog({
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             setBusy(true);
-            await onSubmit(formData);
-            setBusy(false);
-            setPreview(null);
+            try {
+              await onSubmit(formData);
+              setPreview(null);
+            } catch (error) {
+              toast.error(uploadFailureMessage(error));
+            } finally {
+              setBusy(false);
+            }
           }}
           className="space-y-4"
         >

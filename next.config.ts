@@ -39,6 +39,24 @@ const legacyPaths: Record<string, string> = {
 const isIndexable = process.env.NEXT_PUBLIC_NOINDEX !== "true";
 
 const nextConfig: NextConfig = {
+  /*
+   * Server actions accept a body large enough for the files the dashboard
+   * already says it allows.
+   *
+   * Next defaults this to 1 MB, and the dashboard advertises a 25 MB limit for
+   * filings and 8 MB for images - so every real upload was rejected before the
+   * action ran, with a 413 the form could not explain. It went unnoticed
+   * because the only upload ever tested here was an 11 KB photograph.
+   *
+   * Set above 25 MB, not at it: multipart encoding and the accompanying form
+   * fields add to the body, so a file exactly on the limit would still fail.
+   */
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "30mb",
+    },
+  },
+
   images: {
     // Hero and section imagery is served from the Unsplash CDN for now.
     // Swap for local files in /public once the client supplies photography.
