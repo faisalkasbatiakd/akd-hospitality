@@ -71,8 +71,34 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     const seen = new Set<string>();
-    const rules: { source: string; destination: string; permanent: boolean }[] =
-      [];
+    const rules: {
+      source: string;
+      destination: string;
+      permanent: boolean;
+      has?: { type: "host"; value: string }[];
+    }[] = [
+      /*
+       * The apex sends everything to www, which is the canonical host.
+       *
+       * This used to live in .htaccess on the old cPanel hosting, because the
+       * apex resolved there. It is in the application now: the client is
+       * dismantling that hosting, and an apex that works only while someone
+       * else's server stays alive is a dependency waiting to break - which is
+       * exactly what happened.
+       *
+       * The path is preserved. Four filed documents print
+       * http://akdhospitality.com/Investors.aspx, and that URL has to survive
+       * this hop and then the legacy rewrite below before it reaches
+       * /investors. This rule is listed first so every request lands on the
+       * canonical host before anything else is matched.
+       */
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "akdhospitality.com" }],
+        destination: "https://www.akdhospitality.com/:path*",
+        permanent: true,
+      },
+    ];
 
     for (const [legacy, destination] of Object.entries(legacyPaths)) {
       for (const variant of [legacy, legacy.toLowerCase()]) {
