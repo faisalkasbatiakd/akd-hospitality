@@ -4,12 +4,13 @@ import { requireSession } from "@/lib/auth";
 import { getSettings } from "@/lib/content";
 import { Card, CardContent } from "@/components/ui/card";
 
+import { PasswordForm } from "./password-form";
 import { SettingsForm } from "./settings-form";
 
 export const metadata: Metadata = { title: "Company details" };
 
 export default async function SettingsPage() {
-  await requireSession();
+  const session = await requireSession();
   const settings = await getSettings();
 
   const block = (key: string) =>
@@ -118,6 +119,8 @@ export default async function SettingsPage() {
           </p>
         </CardContent>
       </Card>
+
+      <PasswordForm email={session.email} />
     </div>
   );
 }

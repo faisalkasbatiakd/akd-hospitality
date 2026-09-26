@@ -4,8 +4,8 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/db";
-import { settings } from "@/db/schema";
-import { requireSession } from "@/lib/auth";
+import { adminUsers, settings } from "@/db/schema";
+import { hashPassword, requireSession, verifyPassword } from "@/lib/auth";
 import { TAGS } from "@/lib/content";
 
 import { type ActionResult, auditEntry, invalidate } from "../_lib/crud";
@@ -110,5 +110,81 @@ export async function saveSetting(
   // The company name and contact details appear in the footer and in page
   // metadata, so the page cache has to go as well.
   invalidate(TAGS.page, ADMIN_PATH);
+  return { ok: true };
+}
+
+/* ------------------------------------------------------------- password */
+
+/**
+ * Minimum length, matching scripts/create-admin.ts so the two ways of setting a
+ * password cannot disagree about what is acceptable.
+ */
+const MIN_PASSWORD = 10;
+
+const passwordChange = z
+  .object({
+    current: z.string().min(1, "Enter your current password"),
+    next: z
+      .string()
+      .min(MIN_PASSWORD, `The new password must be at least ${MIN_PASSWORD} characters`)
+      .max(200, "That password is too long"),
+    confirm: z.string().min(1, "Confirm the new password"),
+  })
+  .refine((v) => v.next === v.confirm, {
+    message: "The new password and its confirmation do not match",
+  })
+  .refine((v) => v.next !== v.current, {
+    message: "The new password is the same as the current one",
+  });
+
+/**
+ * Change the signed-in administrator's password.
+ *
+ * The current password is required even though the caller already holds a
+ * session. Without it, anyone who found an unlocked machine - or a session left
+ * open on a shared one - could lock the real administrator out of their own
+ * dashboard.
+ *
+ * There is no "forgot password" link anywhere, by design: an email reset is
+ * another way in, and this is a single account. The consequence is that a
+ * forgotten password needs someone with database access to reset it, which is
+ * why this form exists at all.
+ */
+export async function changePassword(formData: FormData): Promise<ActionResult> {
+  const session = await requireSession();
+
+  const parsed = passwordChange.safeParse({
+    current: String(formData.get("current") ?? ""),
+    next: String(formData.get("next") ?? ""),
+    confirm: String(formData.get("confirm") ?? ""),
+  });
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0].message };
+  }
+
+  const [user] = await db
+    .select({ id: adminUsers.id, passwordHash: adminUsers.passwordHash })
+    .from(adminUsers)
+    .where(eq(adminUsers.email, session.email));
+
+  if (!user) {
+    return { ok: false, error: "That account no longer exists. Sign in again." };
+  }
+
+  if (!(await verifyPassword(parsed.data.current, user.passwordHash))) {
+    // Deliberately the same wording whether the password was wrong or merely
+    // mistyped; there is nothing useful to distinguish for someone already
+    // holding a session.
+    return { ok: false, error: "That is not your current password" };
+  }
+
+  await db
+    .update(adminUsers)
+    .set({ passwordHash: await hashPassword(parsed.data.next) })
+    .where(eq(adminUsers.id, user.id));
+
+  // The password itself is never written here, only the fact of the change.
+  await auditEntry("admin_users", "password_change", String(user.id), "Changed the dashboard password");
+
   return { ok: true };
 }
