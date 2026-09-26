@@ -28,7 +28,7 @@ export const company = {
     {
       title: "Hospitality",
       description:
-        "Hotels, business hotels, resorts and extended-stay formats identified within the Company's objects.",
+        "Hotel, business hotels, resorts and extended-stay formats identified within the Company's objects.",
     },
     {
       title: "Motels",
