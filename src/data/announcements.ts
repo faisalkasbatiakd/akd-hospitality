@@ -10,7 +10,7 @@ export const announcements: Announcement[] = [
     href: "/media",
   },
   {
-    title: "Corporate Briefing Session held on 21 November 2025",
+    title: "Corporate Briefing Session held on November 21, 2025",
     href: "/media",
   },
   {
