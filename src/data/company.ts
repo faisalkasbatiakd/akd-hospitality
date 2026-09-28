@@ -282,7 +282,7 @@ export const esg = {
   /** Policies in place, per the environmental and social metric tables, p. 50. */
   policies: [
     "Formal environmental policy covering waste, water, energy and recycling",
-    "Sustainable sourcing policy for responsible procurement",
+    "Sustainable policy for responsible procurement",
     "Health and safety policy",
     "Diversity Equity and Inclusion Policies"
     "Anti-harassment and grievance mechanism supervised by a female director",
