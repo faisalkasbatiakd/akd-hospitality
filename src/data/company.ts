@@ -284,8 +284,9 @@ export const esg = {
     "Formal environmental policy covering waste, water, energy and recycling",
     "Sustainable sourcing policy for responsible procurement",
     "Health and safety policy",
-    "Anti-harassment and diversity, equity and inclusion policies",
-    "Confidential grievance mechanism supervised by a female director",
+    "Diversity Equity and Inclusion Policies"
+    "Anti-harassment and grievance mechanism supervised by a female director",
+    "Whistle Blowing Policy",
   ],
 } as const;
 
