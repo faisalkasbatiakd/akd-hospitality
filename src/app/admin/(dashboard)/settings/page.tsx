@@ -16,6 +16,21 @@ export default async function SettingsPage() {
   const block = (key: string) =>
     (settings[key] as Record<string, unknown> | undefined) ?? {};
 
+  /*
+   * Two blocks are not flat. `stats` is stored as a bare array and
+   * `shareholderServices` nests its registrar. The forms work in flat fields,
+   * so both are flattened here and put back into shape by the action on save.
+   */
+  const statsValues = { stats: settings.stats ?? [] };
+  const services = block("shareholderServices");
+  const registrar = (services.registrar ?? {}) as Record<string, unknown>;
+  const serviceValues = {
+    ...services,
+    "registrar.name": registrar.name,
+    "registrar.label": registrar.label,
+    "registrar.address": registrar.address,
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -103,6 +118,291 @@ export default async function SettingsPage() {
             rows: 8,
             hint: "One paragraph per line. Blank lines are ignored.",
           },
+        ]}
+      />
+
+
+      <SettingsForm
+        settingKey="stats"
+        title="Home page figures"
+        description="The four figures across the top of the home page."
+        values={statsValues}
+        fields={[
+          {
+            name: "stats",
+            label: "Figures",
+            columns: [
+              { key: "value", label: "Figure" },
+              { key: "label", label: "Caption" },
+            ],
+          },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="currentStage"
+        title="Overview section"
+        description="The block below the hero on the home page."
+        values={block("currentStage")}
+        fields={[
+          { name: "eyebrow", label: "Eyebrow" },
+          { name: "heading", label: "Heading", multiline: true, rows: 2 },
+          {
+            name: "body",
+            label: "Paragraphs",
+            list: true,
+            rows: 6,
+            hint: "One paragraph per line.",
+          },
+          {
+            name: "facts",
+            label: "Facts",
+            columns: [
+              { key: "value", label: "Figure" },
+              { key: "label", label: "Caption" },
+            ],
+          },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="chairpersonReview"
+        title="Chairperson&rsquo;s review"
+        description="Quoted from the annual report. Change the wording only if the report does."
+        values={block("chairpersonReview")}
+        fields={[
+          { name: "eyebrow", label: "Eyebrow" },
+          { name: "heading", label: "Heading", multiline: true, rows: 2 },
+          {
+            name: "quotes",
+            label: "Paragraphs",
+            list: true,
+            rows: 6,
+            hint: "One paragraph per line.",
+          },
+          { name: "pullQuote", label: "Pull quote", multiline: true, rows: 3 },
+          { name: "signatory", label: "Signatory" },
+          { name: "signatoryRole", label: "Their role" },
+          { name: "place", label: "Place" },
+          { name: "date", label: "Date" },
+          {
+            name: "boardFacts",
+            label: "Board facts",
+            columns: [
+              { key: "value", label: "Figure" },
+              { key: "label", label: "Caption" },
+            ],
+          },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="esgHeader"
+        title="ESG section heading"
+        description="The introduction above the ESG framework on the About page."
+        values={block("esgHeader")}
+        fields={[
+          { name: "eyebrow", label: "Eyebrow" },
+          { name: "heading", label: "Heading" },
+          { name: "intro", label: "Introduction", multiline: true, rows: 5 },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="investorPanel"
+        title="Investor panel"
+        description="The investor relations block on the home page."
+        values={block("investorPanel")}
+        fields={[
+          { name: "eyebrow", label: "Eyebrow" },
+          { name: "heading", label: "Heading" },
+          { name: "body", label: "Body", multiline: true, rows: 3 },
+          { name: "ctaLabel", label: "Button label" },
+          {
+            name: "ctaHref",
+            label: "Button link",
+            hint: "A path on this site, such as /investors.",
+          },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="electionOfDirectors"
+        title="Election of directors"
+        description="On the Governance page."
+        values={block("electionOfDirectors")}
+        fields={[
+          { name: "passwordNote", label: "Password note", multiline: true, rows: 3 },
+          {
+            name: "profiles",
+            label: "Director profiles",
+            list: true,
+            rows: 8,
+            hint: "One name per line.",
+          },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="genderDiversity"
+        title="Gender diversity"
+        description="On the Governance page."
+        values={block("genderDiversity")}
+        fields={[
+          { name: "title", label: "Heading" },
+          { name: "body", label: "Body", multiline: true, rows: 5 },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="latestAgm"
+        title="Latest AGM"
+        description="On the Media page."
+        values={block("latestAgm")}
+        fields={[
+          { name: "heading", label: "Heading" },
+          { name: "label", label: "Label" },
+          { name: "date", label: "Date" },
+          { name: "time", label: "Time" },
+          {
+            name: "venue",
+            label: "Venue",
+            list: true,
+            rows: 3,
+            hint: "One line of the address per line.",
+          },
+          {
+            name: "agenda",
+            label: "Agenda",
+            list: true,
+            rows: 6,
+            hint: "One item per line.",
+          },
+          {
+            name: "keyDates",
+            label: "Key dates",
+            columns: [
+              { key: "label", label: "What" },
+              { key: "value", label: "When" },
+              { key: "note", label: "Note" },
+            ],
+          },
+          { name: "noticeDate", label: "Notice date" },
+          { name: "signedBy", label: "Signed by" },
+          { name: "attendanceNote", label: "Attendance note" },
+          {
+            name: "source",
+            label: "Source",
+            hint: "Where in the filings this came from.",
+          },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="latestBriefing"
+        title="Latest corporate briefing"
+        description="On the Media page."
+        values={block("latestBriefing")}
+        fields={[
+          { name: "heading", label: "Heading" },
+          { name: "label", label: "Label" },
+          { name: "sessionDate", label: "Session date" },
+          { name: "sessionTime", label: "Session time" },
+          { name: "intimationDate", label: "Intimation date" },
+          { name: "audience", label: "Audience" },
+          { name: "venue", label: "Venue", list: true, rows: 3 },
+          { name: "strategy", label: "Strategy points", list: true, rows: 5 },
+          { name: "strategySource", label: "Strategy source" },
+          {
+            name: "disclosed",
+            label: "Disclosed figures",
+            columns: [
+              { key: "label", label: "What" },
+              { key: "value", label: "This year" },
+              { key: "prior", label: "Prior year" },
+            ],
+          },
+          { name: "disclosedSource", label: "Disclosures source" },
+          { name: "challenges", label: "Challenges", list: true, rows: 6 },
+          { name: "challengesSource", label: "Challenges source" },
+          {
+            name: "presentationFiled",
+            label: "Presentation note",
+            multiline: true,
+            rows: 2,
+          },
+          { name: "source", label: "Source" },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="corporateActions"
+        title="Corporate actions"
+        description="On the Media page."
+        values={block("corporateActions")}
+        fields={[
+          { name: "heading", label: "Heading" },
+          { name: "intro", label: "Introduction", multiline: true, rows: 3 },
+          {
+            name: "items",
+            label: "Actions",
+            columns: [
+              { key: "title", label: "Title" },
+              { key: "date", label: "Date" },
+              { key: "meeting", label: "Meeting" },
+              { key: "body", label: "Description", wide: true },
+              { key: "source", label: "Source" },
+            ],
+          },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="meetingRecord"
+        title="Meeting record"
+        description="The table of past general meetings on the Media page."
+        values={block("meetingRecord")}
+        fields={[
+          { name: "heading", label: "Heading" },
+          { name: "intro", label: "Introduction", multiline: true, rows: 2 },
+          {
+            name: "rows",
+            label: "Meetings",
+            columns: [
+              { key: "financialYear", label: "Financial year" },
+              { key: "type", label: "Type" },
+              { key: "date", label: "Date" },
+            ],
+          },
+          { name: "source", label: "Source" },
+        ]}
+      />
+
+      <SettingsForm
+        settingKey="shareholderServices"
+        title="Shareholder services"
+        description="On the Media page, including the share registrar&rsquo;s details."
+        values={serviceValues}
+        fields={[
+          { name: "heading", label: "Heading" },
+          { name: "intro", label: "Introduction", multiline: true, rows: 3 },
+          {
+            name: "items",
+            label: "Services",
+            columns: [
+              { key: "title", label: "Title" },
+              { key: "body", label: "Description", wide: true },
+            ],
+          },
+          { name: "registrar.label", label: "Registrar label" },
+          { name: "registrar.name", label: "Registrar name" },
+          {
+            name: "registrar.address",
+            label: "Registrar address",
+            list: true,
+            rows: 3,
+          },
+          { name: "source", label: "Source" },
         ]}
       />
 

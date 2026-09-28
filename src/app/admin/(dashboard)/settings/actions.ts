@@ -33,6 +33,39 @@ const lines = z
   )
   .refine((list) => list.length > 0, "At least one line is required");
 
+
+/**
+ * A repeatable group of rows, submitted by the form as one JSON string.
+ *
+ * Kept as JSON rather than indexed field names so the action receives one value
+ * per field instead of having to reassemble `facts.0.label` and friends.
+ */
+const rowsOf = <T extends z.ZodRawShape>(shape: T, label: string) =>
+  z
+    .string()
+    .transform((value, ctx) => {
+      try {
+        return JSON.parse(value) as unknown;
+      } catch {
+        ctx.addIssue({ code: "custom", message: `${label} could not be read` });
+        return z.NEVER;
+      }
+    })
+    .pipe(
+      z
+        .array(z.object(shape))
+        // A row left entirely blank is someone who added one and changed their
+        // mind, not an error worth stopping the save for.
+        .transform((rows) =>
+          rows.filter((row) =>
+            Object.values(row).some((v) => String(v ?? "").trim() !== ""),
+          ),
+        )
+        .refine((rows) => rows.length > 0, `${label} needs at least one row`),
+    );
+
+const row = z.string().trim().max(600);
+
 const SCHEMAS = {
   company: z.object({
     name: text(200, "The company name"),
@@ -62,6 +95,102 @@ const SCHEMAS = {
     title: text(200, "The heading"),
     body: lines,
   }),
+
+  /* --- blocks that previously could only be changed in the database --- */
+
+  stats: z.object({
+    stats: rowsOf({ value: row, label: row }, "The figures"),
+  }),
+  currentStage: z.object({
+    eyebrow: text(100, "The eyebrow"),
+    heading: text(300, "The heading"),
+    body: lines,
+    facts: rowsOf({ value: row, label: row }, "The facts"),
+  }),
+  chairpersonReview: z.object({
+    eyebrow: text(100, "The eyebrow"),
+    heading: text(300, "The heading"),
+    quotes: lines,
+    pullQuote: text(1000, "The pull quote"),
+    signatory: text(200, "The signatory"),
+    signatoryRole: text(200, "Their role"),
+    place: text(120, "The place"),
+    date: text(60, "The date"),
+    boardFacts: rowsOf({ value: row, label: row }, "The board facts"),
+  }),
+  esgHeader: z.object({
+    eyebrow: text(100, "The eyebrow"),
+    heading: text(300, "The heading"),
+    intro: text(2000, "The introduction"),
+  }),
+  investorPanel: z.object({
+    eyebrow: text(100, "The eyebrow"),
+    heading: text(300, "The heading"),
+    body: text(1000, "The body"),
+    ctaLabel: text(120, "The button label"),
+    ctaHref: text(200, "The button link"),
+  }),
+  electionOfDirectors: z.object({
+    passwordNote: text(600, "The password note"),
+    profiles: lines,
+  }),
+  genderDiversity: z.object({
+    title: text(200, "The heading"),
+    body: text(2000, "The body"),
+  }),
+  latestAgm: z.object({
+    heading: text(300, "The heading"),
+    label: text(200, "The label"),
+    date: text(120, "The date"),
+    time: text(60, "The time"),
+    venue: lines,
+    agenda: lines,
+    keyDates: rowsOf({ label: row, value: row, note: row }, "The key dates"),
+    noticeDate: text(120, "The notice date"),
+    signedBy: text(200, "Signed by"),
+    attendanceNote: text(400, "The attendance note"),
+    source: text(300, "The source"),
+  }),
+  latestBriefing: z.object({
+    heading: text(300, "The heading"),
+    label: text(200, "The label"),
+    sessionDate: text(120, "The session date"),
+    sessionTime: text(60, "The session time"),
+    intimationDate: text(120, "The intimation date"),
+    audience: text(300, "The audience"),
+    venue: lines,
+    strategy: lines,
+    strategySource: text(300, "The strategy source"),
+    disclosed: rowsOf({ label: row, value: row, prior: row }, "The disclosed figures"),
+    disclosedSource: text(300, "The disclosures source"),
+    challenges: lines,
+    challengesSource: text(300, "The challenges source"),
+    presentationFiled: text(400, "The presentation note"),
+    source: text(300, "The source"),
+  }),
+  corporateActions: z.object({
+    heading: text(300, "The heading"),
+    intro: text(1000, "The introduction"),
+    items: rowsOf(
+      { title: row, date: row, meeting: row, body: row, source: row },
+      "The corporate actions",
+    ),
+  }),
+  meetingRecord: z.object({
+    heading: text(300, "The heading"),
+    intro: text(1000, "The introduction"),
+    rows: rowsOf({ financialYear: row, type: row, date: row }, "The meeting record"),
+    source: text(300, "The source"),
+  }),
+  shareholderServices: z.object({
+    heading: text(300, "The heading"),
+    intro: text(1000, "The introduction"),
+    items: rowsOf({ title: row, body: row }, "The services"),
+    "registrar.name": text(200, "The registrar's name"),
+    "registrar.label": text(200, "The registrar label"),
+    "registrar.address": lines,
+    source: text(300, "The source"),
+  }),
 } as const;
 
 export type SettingKey = keyof typeof SCHEMAS;
@@ -70,7 +199,40 @@ const LABELS: Record<SettingKey, string> = {
   company: "company details",
   contact: "contact details",
   group: "the AKD Group section",
+  stats: "the home page figures",
+  currentStage: "the overview section",
+  chairpersonReview: "the Chairperson's review",
+  esgHeader: "the ESG heading",
+  investorPanel: "the investor panel",
+  electionOfDirectors: "the election of directors",
+  genderDiversity: "the gender diversity section",
+  latestAgm: "the latest AGM",
+  latestBriefing: "the latest corporate briefing",
+  corporateActions: "the corporate actions",
+  meetingRecord: "the meeting record",
+  shareholderServices: "the shareholder services",
 };
+
+
+/**
+ * Put a parsed block back into the shape the database and the site expect.
+ *
+ * Two blocks do not map cleanly onto a flat form. `stats` is stored as a bare
+ * array rather than an object, and `shareholderServices` holds a nested
+ * `registrar`. The form works in flat fields either way; this puts the shape
+ * back before it is written, so a save through the dashboard cannot quietly
+ * change the structure the pages read.
+ */
+function toStoredShape(key: SettingKey, data: Record<string, unknown>): unknown {
+  if (key === "stats") return data.stats;
+
+  if (key === "shareholderServices") {
+    const { ["registrar.name"]: name, ["registrar.label"]: label, ["registrar.address"]: address, ...rest } = data;
+    return { ...rest, registrar: { name, label, address } };
+  }
+
+  return data;
+}
 
 export async function saveSetting(
   key: SettingKey,
@@ -96,13 +258,15 @@ export async function saveSetting(
     .from(settings)
     .where(eq(settings.key, key));
 
+  const value = toStoredShape(key, parsed.data as Record<string, unknown>);
+
   if (existing.length) {
     await db
       .update(settings)
-      .set({ value: parsed.data, updatedAt: new Date() })
+      .set({ value, updatedAt: new Date() })
       .where(eq(settings.key, key));
   } else {
-    await db.insert(settings).values({ key, value: parsed.data });
+    await db.insert(settings).values({ key, value });
   }
 
   await auditEntry("settings", "update", key, `Edited ${LABELS[key]}`);
