@@ -1,7 +1,6 @@
 "use server";
 
-import { mkdir, unlink, writeFile } from "node:fs/promises";
-import { randomUUID } from "node:crypto";
+import { unlink } from "node:fs/promises";
 import { join } from "node:path";
 
 import { and, eq, sql } from "drizzle-orm";
@@ -12,14 +11,13 @@ import { db } from "@/db";
 import { auditLog, documents } from "@/db/schema";
 import { requireSession } from "@/lib/auth";
 import { TAGS } from "@/lib/content";
-import { UPLOAD_PREFIX, isLegacyKey } from "@/lib/storage";
+import { isLegacyKey } from "@/lib/storage";
 
 /**
  * Every action re-checks the session. Middleware guards navigation, not server
  * actions, which are reachable by anyone who can POST to their endpoint.
  */
 
-const MAX_BYTES = 25 * 1024 * 1024;
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -52,73 +50,12 @@ function refresh() {
 
 const titleSchema = z.string().trim().min(1, "A title is required").max(300);
 
-export async function uploadDocument(
-  formData: FormData,
-): Promise<ActionResult> {
-  const session = await requireSession();
-
-  const groupKey = String(formData.get("groupKey") ?? "");
-  const parsedTitle = titleSchema.safeParse(formData.get("title"));
-  const file = formData.get("file");
-
-  if (!groupKey) return { ok: false, error: "Choose a category." };
-  if (!parsedTitle.success) {
-    return { ok: false, error: parsedTitle.error.issues[0].message };
-  }
-  if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, error: "Choose a PDF to upload." };
-  }
-  if (file.type !== "application/pdf") {
-    return { ok: false, error: "Only PDF files can be published." };
-  }
-  if (file.size > MAX_BYTES) {
-    return {
-      ok: false,
-      error: `That file is ${(file.size / 1048576).toFixed(1)} MB. The limit is 25 MB.`,
-    };
-  }
-
-  // Stored under a generated name: two filings can share a display title, and a
-  // visitor-supplied name must never reach the filesystem.
-  const key = `${UPLOAD_PREFIX}${randomUUID()}.pdf`;
-  const absolute = join(process.cwd(), "storage", key);
-
-  try {
-    await mkdir(join(process.cwd(), "storage", UPLOAD_PREFIX), {
-      recursive: true,
-    });
-    await writeFile(absolute, Buffer.from(await file.arrayBuffer()));
-  } catch (error) {
-    console.error("Could not write the upload:", error);
-    return { ok: false, error: "Could not save the file. Please try again." };
-  }
-
-  // New filings go to the top of their group: the archive reads newest first.
-  const [{ min }] = await db
-    .select({ min: sql<number>`coalesce(min(${documents.sort}), 0)` })
-    .from(documents)
-    .where(eq(documents.groupKey, groupKey));
-
-  const [row] = await db
-    .insert(documents)
-    .values({
-      groupKey,
-      title: parsedTitle.data,
-      path: key,
-      sizeBytes: file.size,
-      sort: min - 1,
-    })
-    .returning({ id: documents.id });
-
-  await record(
-    session.email,
-    "upload",
-    String(row.id),
-    `Added “${parsedTitle.data}” to ${groupKey}`,
-  );
-  refresh();
-  return { ok: true };
-}
+/*
+ * Uploading a filing is not here. It is a route handler, at
+ * src/app/api/admin/documents/route.ts, because Next's server-action parser
+ * truncates a multipart body a little under 10 MB and the annual report is
+ * 12 MB. That file explains the measurement.
+ */
 
 export async function renameDocument(
   id: number,

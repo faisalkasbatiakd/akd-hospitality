@@ -67,7 +67,6 @@ import {
   deleteDocument,
   moveDocument,
   renameDocument,
-  uploadDocument,
 } from "./actions";
 
 type Group = { key: string; label: string; page: string; count: number };
@@ -431,18 +430,33 @@ function AddDocumentDialog({
             data.set("groupKey", groupKey);
             setBusy(true);
             try {
-              const result = await uploadDocument(data);
-              if (result.ok) {
+              /*
+               * Posted to a route handler, not a server action. Next's action
+               * parser truncates a multipart body a little under 10 MB, which
+               * made every filing over that size fail with an unexplained 500 -
+               * see the note in src/app/api/admin/documents/route.ts.
+               */
+              const response = await fetch("/api/admin/documents", {
+                method: "POST",
+                body: data,
+              });
+              const result = (await response.json().catch(() => null)) as
+                | { ok: boolean; error?: string }
+                | null;
+              if (response.ok && result?.ok) {
                 toast.success("Document added");
                 form.reset();
                 onOpenChange(false);
                 onDone();
               } else {
-                toast.error(result.error);
+                toast.error(
+                  result?.error ??
+                    "The upload did not go through. Please try again.",
+                );
               }
             } catch (error) {
-              // A request refused before the action runs throws rather than
-              // returning, so without this the dialog hangs and says nothing.
+              // Only a dropped connection reaches here now: the endpoint
+              // answers with a message of its own for everything else.
               toast.error(uploadFailureMessage(error));
             } finally {
               setBusy(false);
