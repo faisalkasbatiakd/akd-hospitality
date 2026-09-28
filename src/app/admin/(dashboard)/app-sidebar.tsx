@@ -10,6 +10,7 @@ import {
   FileText,
   Images,
   LayoutDashboard,
+  ListTree,
   LogOut,
   Megaphone,
   Milestone,
@@ -52,6 +53,7 @@ const CONTENT = [
   { href: "/admin/board", label: "Board & officers", icon: Users },
   { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { href: "/admin/milestones", label: "Milestones", icon: Milestone },
+  { href: "/admin/content", label: "Page content", icon: ListTree },
 ];
 
 const SETUP = [
