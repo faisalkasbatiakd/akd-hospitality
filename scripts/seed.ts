@@ -22,13 +22,13 @@ import * as t from "@/db/schema";
 import { keyFromDocUrl } from "@/lib/storage";
 
 import { company, chairpersonReview, esg, investorPanel, milestones as milestoneData, businessMedia, overviewMedia, aboutMedia, aboutSectionMedia, investorMedia, mediaSectionMedia } from "@/data/company";
-import { announcements } from "@/data/announcements";
-import { heroSlides, heroHighlights } from "@/data/hero";
-import { pageHeroes, defaultPageHero } from "@/data/page-heroes";
+import { announcements } from "./seed-data/announcements";
+import { heroSlides, heroHighlights } from "./seed-data/hero";
+import { pageHeroes, defaultPageHero } from "./seed-data/page-heroes";
 import { boardOfDirectors, officers, committees, electionOfDirectors, genderDiversity } from "@/data/governance";
 import { financialStatements, annualReports, freeFloat, financialHighlights, financialInformation } from "@/data/investors";
 import { agmNotices, eogmNotices, specialResolutions, corporateBriefings, shareholderForms } from "@/data/media";
-import { shareholdingPatternDocs, electionDocs, genderDiversityDocs } from "@/data/governance-docs";
+import { shareholdingPatternDocs, electionDocs, genderDiversityDocs } from "./seed-data/governance-docs";
 import { latestAgm, latestBriefing, corporateActions, meetingRecord, shareholderServices } from "@/data/media-notices";
 
 const force = process.argv.includes("--force");
@@ -82,7 +82,7 @@ async function wipe() {
 }
 
 async function main() {
-  console.log("Seeding from src/data\n");
+  console.log("Seeding from scripts/seed-data and src/data\n");
 
   if (await isPopulated()) {
     if (!force) {

@@ -1,3 +1,8 @@
+/* ---------------------------------------------------------------------------
+ * This file DOES go live. It is read by the site at request time, not seeded,
+ * so editing it here and deploying is the correct way to change it.
+ * ------------------------------------------------------------------------- */
+
 /**
  * Financial data for the Investors page.
  *

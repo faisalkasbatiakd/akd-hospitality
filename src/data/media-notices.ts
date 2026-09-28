@@ -1,3 +1,14 @@
+/* ---------------------------------------------------------------------------
+ * EDITING THIS FILE CHANGES NOTHING ON THE WEBSITE.
+ *
+ * It fills a brand-new, empty database once. The live site reads this content
+ * from the database, and the seed refuses to run against a database that
+ * already has rows - so a change here is never picked up by a deploy.
+ *
+ * To change what visitors see, use the dashboard:
+ *   https://www.akdhospitality.com/admin
+ * ------------------------------------------------------------------------- */
+
 /**
  * Real content for the Media page.
  *

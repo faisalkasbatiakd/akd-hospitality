@@ -1,3 +1,8 @@
+/* ---------------------------------------------------------------------------
+ * This file DOES go live. It is read by the site at request time, not seeded,
+ * so editing it here and deploying is the correct way to change it.
+ * ------------------------------------------------------------------------- */
+
 /**
  * The date carried by the Terms of Use and the Disclaimer.
  *
