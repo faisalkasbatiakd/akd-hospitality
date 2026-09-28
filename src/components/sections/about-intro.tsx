@@ -41,7 +41,7 @@ export async function AboutIntro() {
             not leave a wide empty gutter on the right. */}
         <div data-aos="fade-up">
           <h2 className="text-[1.6rem] font-normal leading-[1.25] tracking-tight text-brand-navy sm:text-[2rem] lg:text-[2.4rem]">
-            A public limited company of 1936, now directed at Pakistan&rsquo;s
+            A joint stocks company since 1936, now directed at Pakistan&rsquo;s
             tourism sector &mdash; hospitality, motels, destination management
             and the development of tourism attractions.
           </h2>
