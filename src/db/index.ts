@@ -17,7 +17,28 @@ function connectionString() {
       "DATABASE_URL is not set. Copy .env.example to .env.local and fill it in.",
     );
   }
-  return url;
+  // pg v8 treats sslmode=require as verify-full, which rejects Railway's
+  // proxy certificate. TLS is enabled via `ssl` on the pool instead.
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.delete("sslmode");
+    parsed.searchParams.delete("uselibpqcompat");
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+function sslFor(url: string) {
+  try {
+    const { hostname } = new URL(url);
+    if (hostname.endsWith(".rlwy.net")) {
+      return { rejectUnauthorized: false };
+    }
+  } catch {
+    return undefined;
+  }
+  return undefined;
 }
 
 const pool =
@@ -26,6 +47,7 @@ const pool =
     connectionString: connectionString(),
     max: 10,
     idleTimeoutMillis: 30_000,
+    ssl: sslFor(connectionString()),
   });
 
 if (process.env.NODE_ENV !== "production") globalForDb.pool = pool;

@@ -11,6 +11,7 @@ import { db } from "@/db";
 import { auditLog, documents } from "@/db/schema";
 import { currentSession } from "@/lib/auth";
 import { TAGS } from "@/lib/content";
+import { siteUrl } from "@/lib/site";
 import { UPLOAD_PREFIX, uploadRoot } from "@/lib/storage";
 import { MAX_PDF_BYTES } from "@/lib/upload";
 
@@ -45,6 +46,52 @@ function fail(error: string, status: number) {
   return NextResponse.json({ ok: false, error }, { status });
 }
 
+function hostnameOf(value: string) {
+  try {
+    return new URL(value).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
+function firstHeader(request: Request, name: string) {
+  return request.headers.get(name)?.split(",")[0]?.trim() ?? "";
+}
+
+/**
+ * Railway (and any TLS-terminating proxy) makes `new URL(request.url).origin`
+ * a different string from the browser's Origin header: http vs https, or the
+ * generated `*.up.railway.app` host instead of www. The dashboard posts from
+ * https://www.akdhospitality.com; comparing those two origins 403s a real
+ * upload. Trust the Origin host against this site's hosts instead.
+ */
+function isDashboardOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  const host = hostnameOf(origin);
+  if (!host) return false;
+  if (host === "localhost" || host === "127.0.0.1") return true;
+
+  const trusted = new Set<string>([
+    hostnameOf(siteUrl),
+    "www.akdhospitality.com",
+    "akdhospitality.com",
+  ]);
+
+  const forwarded =
+    firstHeader(request, "x-forwarded-host") || firstHeader(request, "host");
+  const forwardedHost = forwarded.split(":")[0].toLowerCase();
+  if (
+    forwardedHost.endsWith(".up.railway.app") ||
+    forwardedHost.endsWith(".railway.app")
+  ) {
+    trusted.add(forwardedHost);
+  }
+
+  return trusted.has(host);
+}
+
 export async function POST(request: Request) {
   const session = await currentSession();
   if (!session) return fail("Your session has ended. Sign in again.", 401);
@@ -55,9 +102,11 @@ export async function POST(request: Request) {
    * Checked explicitly anyway: server actions get this for free and a route
    * handler does not, and the cookie policy is a setting someone could change
    * later without thinking about this file.
+   *
+   * Do not compare Origin to `request.url`: behind Railway that string is the
+   * internal URL, not https://www.akdhospitality.com.
    */
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) {
+  if (!isDashboardOrigin(request)) {
     return fail("That request did not come from the dashboard.", 403);
   }
 
