@@ -72,14 +72,19 @@ export const directorProfiles: Director[] = [
     bio: "Mr. Kanwar Adeel Zaman has over seventeen years of experience in administration, finance and business management. He has served in national and international organisations in Pakistan and the UAE and works as an independent freelance consultant offering services in legal, account and audit, and system stress testing and user acceptance testing. He has taken training courses at the Centre for Executive Education (IBA) and the Institute of Security Management and Research. He is a certified director and has served as a member of the Audit Committee and the Risk Management Committee of AKD Hospitality Limited.",
   },
   {
-    name: "Mr. Muhammad Siddiq Khokhar",
+    name: "Mr. Mian Asif Maqbool Sukhera",
     role: "Independent Director",
-    bio: "Mr. Muhammad Siddiq Khokhar holds Master's degrees in Economics and Islamic Studies and an LL.M. from the University of Karachi. He is a member of the Karachi Bar Association, enrolled with the Sindh Bar Council, and an Advocate of the High Court practising in civil, criminal, corporate and labour matters. He attained the position of Senior Economist at PCSIR, Ministry of Science and Technology, Government of Pakistan. He is a certified director under the corporate governance requirements, and has served as Chairperson of the Audit Committee and the Risk Management Committee and a member of the Human Resources Committee of AKD Hospitality Limited.",
+    bio: "Accomplished Business Executive and Entrepreneur with over 20 years of executive leadership across capital
+markets and international trade. Proven track record of establishing and scaling high-performing enterprise
+operations, including over 12 years in equity brokerage within the Pakistan Stock Exchange (PSX) network,
+followed by more than 15 years driving international trade holding psition of the head of a premier Pakistani meat export enterprise.
+Exceptional expertise in strategic planning, institutional partnership management, regulatory compliance, and
+international market expansion",
   },
   {
-    name: "Mr. Muhammad Sohail",
-    role: "Non-Executive Director",
-    bio: "Mr. Sohail is a businessman with more than thirty years of experience in real estate, from land development to the construction and renovation of buildings and the sale or lease of the finished product to end users. He specialises in real estate valuation and identifying undervalued properties, assessing a property on its economic value and cash flows as well as its physical nature, location and improvements. He has completed numerous real estate projects in Pakistan and overseas. He holds an LL.B., and has served as a member of the Risk Management Committee of AKD Hospitality Limited.",
+    name: "Mr. Muhammad Qasim",
+    role: "Minorityy and Independ Director",
+    bio: "Mr. Muhammad Qasim is an accomplished economist, banker, investor, and financial expert with a distinguished career spanning over three decades in public sector central banking and human resource management. Having served in pivotal roles—including Deputy Director at the State Bank of Pakistan (SBP)—he brings extensive leadership expertise in financial strategy, organizational development, policy formulation, and workforce governance.",
   },
   {
     name: "Mr. Aamir Nazir Dhedhi",
