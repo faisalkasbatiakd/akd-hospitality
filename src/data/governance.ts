@@ -74,12 +74,7 @@ export const directorProfiles: Director[] = [
   {
     name: "Mr. Mian Asif Maqbool Sukhera",
     role: "Independent Director",
-    bio: "Accomplished Business Executive and Entrepreneur with over 20 years of executive leadership across capital
-markets and international trade. Proven track record of establishing and scaling high-performing enterprise
-operations, including over 12 years in equity brokerage within the Pakistan Stock Exchange (PSX) network,
-followed by more than 15 years driving international trade holding psition of the head of a premier Pakistani meat export enterprise.
-Exceptional expertise in strategic planning, institutional partnership management, regulatory compliance, and
-international market expansion",
+    bio: "Accomplished Business Executive and Entrepreneur with over 20 years of executive leadership across capital markets and international trade. Proven track record of establishing and scaling high-performing enterprise operations, including over 12 years in equity brokerage within the Pakistan Stock Exchange (PSX) network, followed by more than 15 years driving international trade holding psition of the head of a premier Pakistani meat export enterprise. Exceptional expertise in strategic planning, institutional partnership management, regulatory compliance, and international market expansion",
   },
   {
     name: "Mr. Muhammad Qasim",
